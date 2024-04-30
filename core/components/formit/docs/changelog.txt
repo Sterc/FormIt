@@ -1,5 +1,8 @@
 Changelog for FormIt.
 
+FormIt 4.3
+- Add setting to post external without going external.
+
 FormIt 4.2.7
 ====================================
 - Use server_offset_time for grid in manager (PR#219)

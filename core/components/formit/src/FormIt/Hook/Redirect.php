@@ -114,6 +114,11 @@ class Redirect
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $result = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $this->modx->log(MODx::LOG_LEVEL_ERROR, '[FormIt] failed call to external action:' . curl_error($ch));
+        }
+
         curl_close($ch);    
 
         return $result;
