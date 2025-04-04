@@ -105,7 +105,7 @@ class FormItForm extends xPDOSimpleObject
 
         $error = '';
         $mediasourceId = $this->xpdo->getOption('formit.attachment.mediasource');
-        $mediasource = $this->xpdo->getObject('modMediaSource', $mediasourceId);
+        $mediasource = $this->xpdo->getObject('sources.modMediaSource', $mediasourceId);
         if (!$mediasource) {
             $error = $this->xpdo->lexicon('formit.storeAttachment_mediasource_error') . $mediasourceId;
         } else {
