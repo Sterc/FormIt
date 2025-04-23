@@ -244,7 +244,7 @@ class Email
             }
         }
 
-        /* add to: with support for multiple addresses */
+        /* add to: with support for multiple addresses, fix with CC for RFC 5322 compliance */
         $emailTo = explode(',', $emailTo);
         $emailToName = explode(',', $emailToName);
         $numAddresses = count($emailTo);
@@ -255,7 +255,11 @@ class Email
             }
             $emailTo[$i] = $this->hook->_process($emailTo[$i], $fields);
             if (!empty($emailTo[$i])) {
-                $mail->address('to', $emailTo[$i], $etn);
+                if ($i == 0) {
+                    $mail->address('to', $emailTo[$i], $etn);                    
+                } else {
+                    $mail->address('cc', $emailTo[$i], $etn);                
+                }
             }
         }
 
