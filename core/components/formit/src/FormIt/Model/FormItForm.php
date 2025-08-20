@@ -389,4 +389,40 @@ class FormItForm extends \xPDO\Om\xPDOSimpleObject
         echo $output;
         exit();
     }
+
+    public function remove(array $ancestors= array ())
+    {
+        $this->removeFiles();
+        return parent::remove($ancestors);
+    }
+
+    protected function removeFiles() {
+        $mediasourceId  = $this->xpdo->getOption('formit.attachment.mediasource');
+        $mediasource    = $this->xpdo->getObject(modMediaSource::class, $mediasourceId);
+        if ($mediasource) {
+            $prop = $mediasource->get('properties');
+            $attachPath = $this->xpdo->getOption('formit.attachment.path');
+            if (empty($attachPath) || $attachPath == '/') {
+                $attachPath = $this->xpdo->getOption(
+                        'formit.assets_path',
+                        null,
+                        $this->xpdo->getOption('assets_path', null, MODX_CORE_PATH)
+                    ) . 'components/formit/attachments';
+            } else {
+                $attachPath = rtrim(MODX_BASE_PATH, '/') . '/'
+                    . trim($prop['basePath']['value'], '/') . '/'
+                    . trim($attachPath,'/');
+            }
+            $path = $attachPath . '/' . $this->get('id');
+            if (is_dir($path)) {
+                $files = glob($path . '/*');
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+                rmdir($path);
+            }
+        }
+    }
 }
