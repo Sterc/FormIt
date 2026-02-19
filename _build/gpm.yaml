@@ -379,6 +379,9 @@ systemSettings:
   - key: max_chars_textfield
     value: 125
     area: formit
+  - key: frontend_js
+    value: '{assets_url}components/formit/js/web/formit.js'
+    area: formit
 
 build:
   readme: core/components/formit/docs/readme.txt

@@ -39,6 +39,16 @@ $modx->loadClass('FormIt', $modelPath, true, true);
 $fi = new FormIt($modx, $scriptProperties);
 
 $fi->initialize($modx->context->get('key'));
+$fi->storeScriptProperties();
+
+$ajaxScriptUrl = $modx->getOption('formit.frontend_js', null, '', false);
+if (!empty($ajaxScriptUrl)) {
+    $assetsUrl = $fi->config['assets_url'];
+    $modx->regClientScript('<script>FormIt.defaults.actionUrl='
+        . json_encode($assetsUrl . 'action.php') . ';</script>', true);
+    $modx->regClientScript($ajaxScriptUrl);
+}
+
 $fi->loadRequest();
 
 $fields = $fi->request->prepare();

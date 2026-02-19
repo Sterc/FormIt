@@ -204,6 +204,30 @@ class FormIt
     }
 
     /**
+     * Store snippet config in session/cache for AJAX form handling.
+     * Sets the formProperties placeholder with the config hash.
+     *
+     * @return string The config hash
+     */
+    public function storeScriptProperties()
+    {
+        $propsHash = md5(serialize($this->config));
+
+        $propsToStore = $this->config;
+        $propsToStore['pageId'] = $this->modx->resource ? $this->modx->resource->get('id') : null;
+
+        if (session_id() !== '') {
+            $_SESSION['FormIt'][$propsHash] = $propsToStore;
+        }
+        $this->modx->cacheManager->set('formit/props_' . $propsHash, $propsToStore, 7200);
+
+        $prefix = $this->modx->getOption('placeholderPrefix', $this->config, 'fi.');
+        $this->modx->setPlaceholder($prefix . 'formProperties', $propsHash);
+
+        return $propsHash;
+    }
+
+    /**
      * Load the fiRequest class
      *
      * @return Request
@@ -316,6 +340,18 @@ class FormIt
             $url = $this->postHooks->getRedirectUrl();
             $response['redirect_url'] = $url;
         }
+
+        // Collect all placeholders with our prefix for AJAX usage
+        $prefix    = $this->modx->getOption('placeholderPrefix', $this->request->config, 'fi.');
+        $prefixLen = strlen($prefix);
+
+        $placeholders = [];
+        foreach ($this->modx->placeholders as $key => $value) {
+            if (strpos($key, $prefix) === 0) {
+                $placeholders[substr($key, $prefixLen)] = $value;
+            }
+        }
+        $response['placeholders'] = $placeholders;
 
         return $response;
     }

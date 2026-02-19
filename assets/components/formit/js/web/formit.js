@@ -1,0 +1,230 @@
+/**
+ * FormIt
+ *
+ * Client-side functionality for FormIt forms.
+ *
+ * @package formit
+ */
+(function (window, document) {
+    'use strict';
+
+    /**
+     * @param {HTMLFormElement} form
+     * @param {Object} [options]
+     * @constructor
+     */
+    function FormIt(form, options) {
+        if (!(form instanceof HTMLFormElement)) {
+            console.error('[FormIt] First argument must be a form element.');
+            return;
+        }
+
+        this.form = form;
+        this.options = {};
+
+        for (var key in FormIt.defaults) {
+            if (FormIt.defaults.hasOwnProperty(key)) {
+                this.options[key] = FormIt.defaults[key];
+            }
+        }
+
+        if (options) {
+            for (var key in options) {
+                if (options.hasOwnProperty(key)) {
+                    this.options[key] = options[key];
+                }
+            }
+        }
+
+        this.form.addEventListener('submit', this._onSubmit.bind(this));
+    }
+
+    /**
+     * Global defaults. actionUrl is set by PHP via regClientScript.
+     */
+    FormIt.defaults = {
+        actionUrl: '',
+        clearOnSuccess: true,
+        onBeforeSubmit: null,
+        onSuccess: null,
+        onError: null,
+        onComplete: null,
+        onRedirect: null
+    };
+
+    /**
+     * @param {SubmitEvent} e
+     * @private
+     */
+    FormIt.prototype._onSubmit = function (e) {
+        e.preventDefault();
+
+        // beforesubmit event (cancelable)
+        var beforeEvent = this._dispatch('formit:beforesubmit', { form: this.form }, true);
+        if (beforeEvent.defaultPrevented) return;
+
+        // callback
+        if (typeof this.options.onBeforeSubmit === 'function') {
+            if (this.options.onBeforeSubmit(this.form) === false) return;
+        }
+
+        this._clearMessages();
+        this._setLoading(true);
+
+        var formData = new FormData(this.form);
+
+        // Add formProperties from data-attribute
+        var props = this.form.getAttribute('data-formit-properties');
+        if (props) {
+            formData.append('formProperties', props);
+        }
+
+        var self = this;
+
+        fetch(this.options.actionUrl, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            self._handleResponse(data);
+        })
+        .catch(function (error) {
+            console.error('[FormIt] Request failed:', error);
+        })
+        .finally(function () {
+            self._setLoading(false);
+            self._dispatch('formit:complete', {});
+            if (typeof self.options.onComplete === 'function') {
+                self.options.onComplete();
+            }
+        });
+    };
+
+    /**
+     * @param {Object} data - Response from processForm()
+     * @private
+     */
+    FormIt.prototype._handleResponse = function (data) {
+        var placeholders = data.placeholders || {};
+        var hasFieldErrors = false;
+
+        // Fill field errors
+        for (var key in placeholders) {
+            if (placeholders.hasOwnProperty(key) && key.indexOf('error.') === 0) {
+                hasFieldErrors = true;
+                var fieldName = key.substring(6); // Remove prefix "error."
+                var el = this.form.querySelector('[data-formit-error="' + fieldName + '"]');
+                if (el) el.innerHTML = placeholders[key];
+            }
+        }
+
+        // Fill messages
+        var el;
+        if ((el = this.form.querySelector('[data-formit-success-message]'))) {
+            el.innerHTML = placeholders.successMessage || '';
+        }
+        if ((el = this.form.querySelector('[data-formit-validation-error-message]'))) {
+            el.innerHTML = placeholders.validation_error_message || '';
+        }
+        if ((el = this.form.querySelector('[data-formit-error-message]'))) {
+            el.innerHTML = placeholders.error_message || '';
+        }
+
+        // Determine if this is an error response
+        var isError = !data.success || hasFieldErrors || placeholders.validation_error || placeholders.error_message;
+
+        if (isError) {
+            this._dispatch('formit:error', { data: data });
+            if (typeof this.options.onError === 'function') {
+                this.options.onError(data);
+            }
+        } else {
+            this._dispatch('formit:success', { data: data });
+            if (typeof this.options.onSuccess === 'function') {
+                this.options.onSuccess(data);
+            }
+
+            if (this.options.clearOnSuccess) {
+                this.form.reset();
+            }
+
+            // Handle redirect (cancelable)
+            if (data.redirect_url) {
+                var redirectEvent = this._dispatch('formit:redirect', { url: data.redirect_url }, true);
+                if (redirectEvent.defaultPrevented) return;
+
+                if (typeof this.options.onRedirect === 'function') {
+                    if (this.options.onRedirect(data.redirect_url) === false) return;
+                }
+
+                window.location.href = data.redirect_url;
+            }
+        }
+    };
+
+    /**
+     * Clear all message and error elements in the form.
+     * @private
+     */
+    FormIt.prototype._clearMessages = function () {
+        this.form.querySelectorAll('[data-formit-error]').forEach(function (el) {
+            el.innerHTML = '';
+        });
+        this.form.querySelectorAll('[data-formit-success-message], [data-formit-validation-error-message], [data-formit-error-message]')
+            .forEach(function (el) {
+                el.innerHTML = '';
+            });
+    };
+
+    /**
+     * Toggle loading state on the form.
+     * @param {boolean} loading
+     * @private
+     */
+    FormIt.prototype._setLoading = function (loading) {
+        if (loading) {
+            this.form.classList.add('formit-loading');
+        } else {
+            this.form.classList.remove('formit-loading');
+        }
+
+        var buttons = this.form.querySelectorAll('[type="submit"]');
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].disabled = loading;
+        }
+    };
+
+    /**
+     * Dispatch a CustomEvent on the form element.
+     * @param {string} name
+     * @param {Object} detail
+     * @param {boolean} [cancelable]
+     * @returns {CustomEvent}
+     * @private
+     */
+    FormIt.prototype._dispatch = function (name, detail, cancelable) {
+        var event = new CustomEvent(name, {
+            detail: detail,
+            bubbles: true,
+            cancelable: !!cancelable
+        });
+        this.form.dispatchEvent(event);
+        return event;
+    };
+
+    // Auto-initialize
+    document.addEventListener('DOMContentLoaded', function () {
+        var forms = document.querySelectorAll('form[data-formit-properties]');
+        for (var i = 0; i < forms.length; i++) {
+            new FormIt(forms[i]);
+        }
+    });
+
+    // Expose globally
+    window.FormIt = FormIt;
+
+})(window, document);

@@ -102,3 +102,5 @@ $_lang['formit.not_regexp']                                     = 'De waarde vol
 $_lang['formit.all_group_text']                                 = 'Alle landen';
 $_lang['formit.storeAttachment_mediasource_error']              = 'Kan Mediabron niet vinden! Mediabron ID is: ';
 $_lang['formit.storeAttachment_access_error']                   = 'Directory is niet schrijfbaar! Controleer de machtigingen voor: ';
+$_lang['formit.err_config_ns']                                  = 'Geen formulierconfiguratie opgegeven.';
+$_lang['formit.err_config_expired']                             = 'Formulierconfiguratie verlopen. Herlaad de pagina.';
