@@ -41,12 +41,12 @@ $fi = new FormIt($modx, $scriptProperties);
 $fi->initialize($modx->context->get('key'));
 $fi->storeScriptProperties();
 
-$ajaxScriptUrl = $modx->getOption('formit.frontend_js', null, '', false);
-if (!empty($ajaxScriptUrl)) {
+$frontendJs = $modx->getOption('formit.frontend_js', null, '', false);
+if (!empty($frontendJs)) {
     $assetsUrl = $fi->config['assets_url'];
+    $modx->regClientScript($assetsUrl . $frontendJs);
     $modx->regClientScript('<script>FormIt.defaults.actionUrl='
         . json_encode($assetsUrl . 'action.php') . ';</script>', true);
-    $modx->regClientScript($ajaxScriptUrl);
 }
 
 $fi->loadRequest();

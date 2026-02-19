@@ -58,7 +58,7 @@ class Redirect
         }
 
         /** Allow external handling of the post. */
-        if ($this->formit->config['formAction']) {
+        if (!empty($this->formit->config['formAction'])) {
             $this->externalPost($fields);
         }
 

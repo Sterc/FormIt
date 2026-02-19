@@ -484,7 +484,7 @@
             "area": "formit"
         },{
             "key": "frontend_js",
-            "value": "{assets_url}components/formit/js/web/formit.js",
+            "value": "js/web/formit.js",
             "area": "formit"
         }]
     },

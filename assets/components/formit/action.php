@@ -17,7 +17,11 @@ if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQU
 
 /* Boot MODX in API mode */
 define('MODX_API_MODE', true);
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/index.php';
+require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/config.core.php';
+require_once MODX_CORE_PATH . 'config/' . MODX_CONFIG_KEY . '.inc.php';
+require_once MODX_BASE_PATH . 'index.php';
+
+$modx->getParser();
 
 header('Content-Type: application/json; charset=UTF-8');
 
@@ -78,5 +82,6 @@ $fi->initialize($modx->context->get('key'));
 
 $response = $fi->processForm();
 
+@ob_clean();
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
 exit;
