@@ -2,7 +2,6 @@
 
 namespace Sterc\FormIt;
 
-use Sterc\FormIt\Service\Recaptcha;
 use Sterc\FormIt\Service\RecaptchaService;
 
 /**
@@ -82,7 +81,7 @@ class Request
         /* if using recaptcha, load recaptcha html */
         if ($this->formit->hasHook('recaptcha')) {
             $this->loadReCaptcha($this->config);
-            if (!empty($this->reCaptcha) && $this->reCaptcha instanceof Recaptcha) {
+            if (!empty($this->reCaptcha) && $this->reCaptcha instanceof RecaptchaService) {
                 $this->reCaptcha->render($this->config);
             } else {
                 $this->modx->log(\modX::LOG_LEVEL_ERROR,'[FormIt] '.$this->modx->lexicon('formit.recaptcha_err_load'));
@@ -243,12 +242,7 @@ class Request
     public function loadReCaptcha(array $config = array())
     {
         if (empty($this->reCaptcha)) {
-            if ($this->modx->loadClass('recaptcha.FormItReCaptcha', $this->config['model_path'], true, true)) {
-                $this->reCaptcha = new RecaptchaService($this->formit, $config);
-            } else {
-                $this->modx->log(\modX::LOG_LEVEL_ERROR, '[FormIt] '.$this->modx->lexicon('formit.recaptcha_err_load'));
-                return null;
-            }
+            $this->reCaptcha = new RecaptchaService($this->formit, $config);
         }
 
         return $this->reCaptcha;
