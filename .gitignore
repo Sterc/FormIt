@@ -12,3 +12,7 @@ assets/components/formit/tmp
 _packages/*.*
 !_packages/.gitignore
 !_packages/*.zip
+
+_build/gpm_resolvers/
+_build/gpm_scripts/
+
