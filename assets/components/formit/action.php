@@ -25,8 +25,8 @@ $modx->getParser();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-/* Validate formProperties hash */
-$hash = isset($_POST['formProperties']) ? $_POST['formProperties'] : '';
+/* Validate ajaxToken hash */
+$hash = isset($_POST['ajaxToken']) ? $_POST['ajaxToken'] : '';
 if (!preg_match('/^[a-f0-9]{32}$/', $hash)) {
     http_response_code(400);
     echo json_encode([

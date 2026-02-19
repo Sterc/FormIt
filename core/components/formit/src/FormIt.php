@@ -205,7 +205,7 @@ class FormIt
 
     /**
      * Store snippet config in session/cache for AJAX form handling.
-     * Sets the formProperties placeholder with the config hash.
+     * Sets the ajaxToken placeholder with the config hash.
      *
      * @return string The config hash
      */
@@ -222,7 +222,7 @@ class FormIt
         $this->modx->cacheManager->set('formit/props_' . $propsHash, $propsToStore, 7200);
 
         $prefix = $this->modx->getOption('placeholderPrefix', $this->config, 'fi.');
-        $this->modx->setPlaceholder($prefix . 'formProperties', $propsHash);
+        $this->modx->setPlaceholder($prefix . 'ajaxToken', $propsHash);
 
         return $propsHash;
     }

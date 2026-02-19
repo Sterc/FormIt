@@ -73,10 +73,10 @@
 
         var formData = new FormData(this.form);
 
-        // Add formProperties from data-attribute
-        var props = this.form.getAttribute('data-formit-properties');
-        if (props) {
-            formData.append('formProperties', props);
+        // Add ajaxToken from data-attribute
+        var token = this.form.getAttribute('data-formit-ajax-token');
+        if (token) {
+            formData.append('ajaxToken', token);
         }
 
         var self = this;
@@ -218,7 +218,7 @@
 
     // Auto-initialize
     document.addEventListener('DOMContentLoaded', function () {
-        var forms = document.querySelectorAll('form[data-formit-properties]');
+        var forms = document.querySelectorAll('form[data-formit-ajax-token]');
         for (var i = 0; i < forms.length; i++) {
             new FormIt(forms[i]);
         }
