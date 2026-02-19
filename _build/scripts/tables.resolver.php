@@ -101,10 +101,10 @@ if (!function_exists('alterTable')) {
     }
 }
 
-if ($object->xpdo) {
+if ($transport->xpdo) {
     switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
-            $modx =& $object->xpdo;
+            $modx =& $transport->xpdo;
             $modx->addPackage('formit', $modx->getOption('formit.core_path', null, $modx->getOption('core_path') . 'components/formit/') . 'model/');
 
             $manager = $modx->getManager();
@@ -114,7 +114,7 @@ if ($object->xpdo) {
             break;
         case xPDOTransport::ACTION_UPGRADE:
             /** @var modX $modx */
-            $modx =& $object->xpdo;
+            $modx =& $transport->xpdo;
 
             $tables = array(
                 'FormItForm'

@@ -11,6 +11,7 @@ $package = 'FormIt';
 $settings = ['user_name', 'user_email'];
 
 $success = false;
+$modx =& $transport->xpdo;
 
 switch ($options[xPDOTransport::PACKAGE_ACTION]) {
     case xPDOTransport::ACTION_INSTALL:

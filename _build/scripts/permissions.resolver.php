@@ -21,11 +21,11 @@ $permissions = [[
 
 $success = false;
 
-if ($object->xpdo) {
+if ($transport->xpdo) {
     switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
         case xPDOTransport::ACTION_UPGRADE:
-            $modx =& $object->xpdo;
+            $modx =& $transport->xpdo;
 
             foreach ($modx->getCollection('modAccessPolicyTemplate') as $accessTemplate) {
                 foreach ($permissions as $permission) {

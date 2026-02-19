@@ -6,11 +6,11 @@
  * Copyright 2019 by Sterc <modx@sterc.nl>
  */
 
-if ($object->xpdo) {
+if ($transport->xpdo) {
     switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         case xPDOTransport::ACTION_INSTALL:
         case xPDOTransport::ACTION_UPGRADE:
-            $modx =& $object->xpdo;
+            $modx =& $transport->xpdo;
 
             $path = $modx->getOption('formit.assets_path', null, MODX_ASSETS_PATH . 'components/formit/') . 'cronjob/cron.php';
 

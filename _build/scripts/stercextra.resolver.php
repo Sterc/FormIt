@@ -10,7 +10,7 @@ $package = 'FormIt';
 $url     = 'https://extras.sterc.nl/api/v1/packagedata';
 $params  = array();
 
-$modx =& $object->xpdo;
+$modx =& $transport->xpdo;
 $c = $modx->newQuery('transport.modTransportPackage');
 $c->where(
     array(
