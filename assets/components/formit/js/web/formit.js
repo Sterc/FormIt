@@ -88,10 +88,10 @@
         this._clearMessages();
         this._setLoading(true);
 
-        var submitter = e.submitter || this._lastSubmitter;
+        var submitter = e.submitter || this._lastSubmitter || this.form.querySelector('[type="submit"]');
         var formData = new FormData(this.form);
 
-        // Include the clicked submit button so server-side submitVar check works
+        // Include the submit button so server-side submitVar check works
         if (submitter && submitter.name) {
             formData.append(submitter.name, submitter.value || '');
         }
