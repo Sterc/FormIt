@@ -80,6 +80,11 @@
             if (this.options.onBeforeSubmit(this.form) === false) return;
         }
 
+        if (!this.options.actionUrl) {
+            console.error('[FormIt] actionUrl is not configured. Set the "formit.frontend_js" system setting or pass actionUrl when creating a FormIt instance.');
+            return;
+        }
+
         this._clearMessages();
         this._setLoading(true);
 
