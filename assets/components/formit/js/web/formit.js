@@ -36,8 +36,20 @@
             }
         }
 
+        this._lastSubmitter = null;
+        this.form.addEventListener('click', this._onClickSubmit.bind(this));
         this.form.addEventListener('submit', this._onSubmit.bind(this));
     }
+
+    /**
+     * Track which submit button was clicked.
+     * @param {MouseEvent} e
+     * @private
+     */
+    FormIt.prototype._onClickSubmit = function (e) {
+        var btn = e.target.closest('[type="submit"]');
+        this._lastSubmitter = btn && btn.name ? btn : null;
+    };
 
     /**
      * Global defaults. actionUrl is set by PHP via regClientScript.
@@ -71,7 +83,13 @@
         this._clearMessages();
         this._setLoading(true);
 
+        var submitter = e.submitter || this._lastSubmitter;
         var formData = new FormData(this.form);
+
+        // Include the clicked submit button so server-side submitVar check works
+        if (submitter && submitter.name) {
+            formData.append(submitter.name, submitter.value || '');
+        }
 
         // Add ajaxToken from data-attribute
         var token = this.form.getAttribute('data-formit-ajax-token');
