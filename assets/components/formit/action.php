@@ -55,8 +55,6 @@ if (empty($config) || !is_array($config)) {
 
 /* Set up resource context from stored pageId */
 $pageId = (int) ($config['pageId'] ?? 0);
-unset($config['pageId']);
-
 if ($pageId && $resource = $modx->getObject(modResource::class, $pageId)) {
     $modx->switchContext($resource->get('context_key'));
     $modx->resource = $resource;

@@ -141,10 +141,10 @@ class Request
 
         /* if not a form submission, store config for AJAX handling */
         if (!$this->hasSubmission()) {
-            $ajaxToken = md5(serialize($this->config));
-
             $properties = $this->config;
             $properties['pageId'] = $this->modx->resource ? $this->modx->resource->get('id') : null;
+
+            $ajaxToken = md5(serialize($properties));
 
             if (session_id() !== '') {
                 $_SESSION['formit'][$ajaxToken] = $properties;
