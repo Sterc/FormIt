@@ -2,7 +2,6 @@
 
 namespace Sterc\FormIt;
 
-use Sterc\FormIt\Service\Recaptcha;
 use Sterc\FormIt\Service\RecaptchaService;
 use Sterc\FormIt\Model\FormItForm;
 
@@ -83,7 +82,7 @@ class Request
         /* if using recaptcha, load recaptcha html */
         if ($this->formit->hasHook('recaptcha')) {
             $this->loadReCaptcha($this->config);
-            if (!empty($this->reCaptcha) && $this->reCaptcha instanceof Recaptcha) {
+            if (!empty($this->reCaptcha) && $this->reCaptcha instanceof RecaptchaService) {
                 $this->reCaptcha->render($this->config);
             } else {
                 $this->modx->log(\modX::LOG_LEVEL_ERROR,'[FormIt] '.$this->modx->lexicon('formit.recaptcha_err_load'));
@@ -138,6 +137,30 @@ class Request
         ) {
             $newForm = $this->modx->newObject(FormItForm::class);
             $newForm->validateStoreAttachment($this->config);
+        }
+
+        /* if not a form submission, store config for AJAX handling */
+        if (!$this->hasSubmission()) {
+            $ajaxToken = md5(serialize($this->config));
+
+            $properties = $this->config;
+            $properties['pageId'] = $this->modx->resource ? $this->modx->resource->get('id') : null;
+
+            if (session_id() !== '') {
+                $_SESSION['formit'][$ajaxToken] = $properties;
+            }
+            $this->modx->cacheManager->set('formit/props_' . $ajaxToken, $properties, 7200);
+
+            $this->modx->setPlaceholder($this->config['placeholderPrefix'] . 'ajaxToken', $ajaxToken);
+
+            /* register frontend JS if configured */
+            $frontendJs = $this->modx->getOption('formit.frontend_js', null, '');
+            if (!empty($frontendJs)) {
+                $assetsUrl = $this->formit->config['assets_url'];
+                $this->modx->regClientScript($assetsUrl . $frontendJs);
+                $this->modx->regClientScript('<script>FormIt.defaults.actionUrl='
+                    . json_encode($assetsUrl . 'action.php') . ';</script>', true);
+            }
         }
 
         return $this->runPreHooks();
@@ -221,12 +244,7 @@ class Request
     public function loadReCaptcha(array $config = array())
     {
         if (empty($this->reCaptcha)) {
-            if ($this->modx->loadClass('recaptcha.FormItReCaptcha', $this->config['core_path'] . '/model/formit/', true, true)) {
-                $this->reCaptcha = new RecaptchaService($this->formit, $config);
-            } else {
-                $this->modx->log(\modX::LOG_LEVEL_ERROR, '[FormIt] '.$this->modx->lexicon('formit.recaptcha_err_load'));
-                return null;
-            }
+            $this->reCaptcha = new RecaptchaService($this->formit, $config);
         }
 
         return $this->reCaptcha;

@@ -275,44 +275,6 @@ class FormIt
     }
 
     /**
-     * Process the form and return response array
-     * Does not execute redirect, but add redirect_url to response
-     *
-     * @return array
-     */
-    public function processForm()
-    {
-        $this->returnOutput = true;
-        $this->loadRequest();
-        $this->request->prepare();
-        $this->request->handle();
-
-        // By default form is successfull
-        $response = [
-            'success' => true,
-            'message' => $this->request->config['successMessage']
-        ];
-
-        // Check for errors
-        if ($this->hasErrors()) {
-            $response['success']     = false;
-            $response['error_count'] = count($this->errors);
-            $response['message']     = $this->modx->getPlaceholder($this->modx->getOption('placeholderPrefix', $this->request->config, null) . 'validation_error_message');
-            $response['errors']      = $this->getErrors();
-        }
-
-        // Add the form fields to output
-        $response['fields'] = $this->request->dictionary->fields;
-
-        // Check for redirect
-        if ($this->postHooks && $this->hasHook('redirect')) {
-            $response['redirect_url'] = $this->postHooks->getRedirectUrl();
-        }
-
-        return $response;
-    }
-
-    /**
      * Gets a unique session-based store key for storing form submissions.
      *
      * @return string
