@@ -69,6 +69,11 @@
      * @private
      */
     FormIt.prototype._onSubmit = function (e) {
+        if (!this.options.actionUrl) {
+            console.warn('[FormIt] actionUrl is not configured. Falling back to standard form submission.');
+            return;
+        }
+
         e.preventDefault();
 
         // beforesubmit event (cancelable)
@@ -78,13 +83,6 @@
         // callback
         if (typeof this.options.onBeforeSubmit === 'function') {
             if (this.options.onBeforeSubmit(this.form) === false) return;
-        }
-
-        if (!this.options.actionUrl) {
-            var msg = '[FormIt] actionUrl is not configured. Set the "formit.frontend_js" system setting or pass actionUrl when creating a FormIt instance.';
-            console.error(msg);
-            this._showMessage('[data-formit-error-message]', msg);
-            return;
         }
 
         this._clearMessages();
