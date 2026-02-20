@@ -213,11 +213,11 @@
      */
     FormIt.prototype._clearMessages = function () {
         this.form.querySelectorAll('[data-formit-error]').forEach(function (el) {
-            el.innerHTML = '';
+            el.textContent = '';
         });
         this.form.querySelectorAll('[data-formit-success-message], [data-formit-validation-error-message], [data-formit-error-message]')
             .forEach(function (el) {
-                el.innerHTML = '';
+                el.textContent = '';
             });
     };
 
