@@ -81,7 +81,9 @@
         }
 
         if (!this.options.actionUrl) {
-            console.error('[FormIt] actionUrl is not configured. Set the "formit.frontend_js" system setting or pass actionUrl when creating a FormIt instance.');
+            var msg = '[FormIt] actionUrl is not configured. Set the "formit.frontend_js" system setting or pass actionUrl when creating a FormIt instance.';
+            console.error(msg);
+            this._showMessage('[data-formit-error-message]', msg);
             return;
         }
 
@@ -117,6 +119,13 @@
         })
         .catch(function (error) {
             console.error('[FormIt] Request failed:', error);
+
+            self._showMessage('[data-formit-error-message]', error.message || 'Request failed');
+
+            self._dispatch('formit:error', { data: null, error: error });
+            if (typeof self.options.onError === 'function') {
+                self.options.onError(null, error);
+            }
         })
         .finally(function () {
             self._setLoading(false);
@@ -145,17 +154,10 @@
             }
         }
 
-        // Fill messages
-        var el;
-        if ((el = this.form.querySelector('[data-formit-success-message]'))) {
-            el.innerHTML = placeholders.successMessage || '';
-        }
-        if ((el = this.form.querySelector('[data-formit-validation-error-message]'))) {
-            el.innerHTML = placeholders.validation_error_message || '';
-        }
-        if ((el = this.form.querySelector('[data-formit-error-message]'))) {
-            el.innerHTML = placeholders.error_message || '';
-        }
+        // Fill messages with alert fallback
+        this._showMessage('[data-formit-success-message]', placeholders.successMessage || '');
+        this._showMessage('[data-formit-validation-error-message]', placeholders.validation_error_message || '');
+        this._showMessage('[data-formit-error-message]', placeholders.error_message || '');
 
         // Determine if this is an error response
         var isError = !data.success || hasFieldErrors || placeholders.validation_error || placeholders.error_message;
@@ -186,6 +188,22 @@
 
                 window.location.href = data.redirect_url;
             }
+        }
+    };
+
+    /**
+     * Show a message in a container element or fall back to alert.
+     * @param {string} selector
+     * @param {string} message
+     * @private
+     */
+    FormIt.prototype._showMessage = function (selector, message) {
+        if (!message) return;
+        var el = this.form.querySelector(selector);
+        if (el) {
+            el.innerHTML = message;
+        } else {
+            alert(message);
         }
     };
 
