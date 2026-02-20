@@ -135,9 +135,6 @@ class RecaptchaService
      * @return string
      */
     protected function error($message = '') {
-        $response = new \Sterc\FormIt\Service\RecaptchaResponse();
-        $response->is_valid = false;
-        $response->error = $message;
         return $message;
     }
 
@@ -150,33 +147,37 @@ class RecaptchaService
      * @return \Sterc\FormIt\Service\RecaptchaResponse
      */
     public function checkAnswer ($remoteIp, $challenge, $responseField, $extraParams = array()) {
+        $response = new RecaptchaResponse();
+        $response->is_valid = false;
+
         if (empty($this->config[self::OPT_PRIVATE_KEY])) {
-            return $this->error($this->modx->lexicon('recaptcha.no_api_key'));
+            $response->error = $this->modx->lexicon('recaptcha.no_api_key');
+            return $response;
         }
 
         if (empty($remoteIp)) {
-            return $this->error($this->modx->lexicon('recaptcha.no_remote_ip'));
+            $response->error = $this->modx->lexicon('recaptcha.no_remote_ip');
+            return $response;
         }
 
         //discard spam submissions
         if (empty($challenge) || empty($responseField)) {
-            return $this->error($this->modx->lexicon('recaptcha.empty_answer'));
+            $response->error = $this->modx->lexicon('recaptcha.empty_answer');
+            return $response;
         }
 
-        $response = $this->httpPost(self::VERIFY_SERVER, "/recaptcha/api/verify", array (
+        $httpResponse = $this->httpPost(self::VERIFY_SERVER, "/recaptcha/api/verify", array (
             'remoteip' => $remoteIp,
             'challenge' => $challenge,
             'response' => $responseField,
         ) + $extraParams);
 
-        $answers = explode("\n", $response[1]);
-        $response = new \Sterc\FormIt\Service\RecaptchaResponse();
+        $answers = explode("\n", $httpResponse[1] ?? '');
 
         if (trim($answers[0]) == 'true') {
             $response->is_valid = true;
         } else {
-            $response->is_valid = false;
-            $response->error = $answers [1];
+            $response->error = $answers[1] ?? '';
         }
         return $response;
     }

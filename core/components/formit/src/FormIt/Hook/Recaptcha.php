@@ -60,13 +60,13 @@ class Recaptcha
 
         $response = $reCaptcha->checkAnswer(
             $_SERVER['REMOTE_ADDR'],
-            $_POST['recaptcha_challenge_field'],
-            $_POST['recaptcha_response_field']
+            $_POST['recaptcha_challenge_field'] ?? '',
+            $_POST['recaptcha_response_field'] ?? ''
         );
 
         if (!$response->is_valid) {
             $this->hook->addError('recaptcha', $this->modx->lexicon('recaptcha.incorrect', array(
-                'error' => $response->error != 'incorrect-captcha-sol' ? $response->error : '',
+                'error' => (!empty($response->error) && $response->error != 'incorrect-captcha-sol') ? $response->error : '',
             )));
         } else {
             $passed = true;

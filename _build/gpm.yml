@@ -46,6 +46,9 @@ systemSettings:
   - key: max_chars_textfield
     area: formit
     value: 125
+  - key: frontend_js
+    value: 'js/web/formit.js'
+    area: formit
 
 chunks:
   - name: fiDefaultEmailTpl
