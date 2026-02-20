@@ -149,7 +149,8 @@ class Request
             if (session_id() !== '') {
                 $_SESSION['formit'][$ajaxToken] = $properties;
             }
-            $this->modx->cacheManager->set('formit/props_' . $ajaxToken, $properties, 7200);
+            $cacheTtl = (int) $this->modx->getOption('session_gc_maxlifetime', null, 604800);
+            $this->modx->cacheManager->set('formit/props_' . $ajaxToken, $properties, $cacheTtl);
 
             $this->modx->setPlaceholder($this->config['placeholderPrefix'] . 'ajaxToken', $ajaxToken);
 
