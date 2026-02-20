@@ -275,6 +275,44 @@ class FormIt
     }
 
     /**
+     * Process the form and return response array.
+     * Does not execute redirect, but adds redirect_url to response.
+     *
+     * @deprecated Use action.php AJAX endpoint instead.
+     *
+     * @return array
+     */
+    public function processForm()
+    {
+        $this->modx->log(\modX::LOG_LEVEL_WARN, '[FormIt] processForm() is deprecated.');
+
+        $this->returnOutput = true;
+        $this->loadRequest();
+        $this->request->prepare();
+        $this->request->handle();
+
+        $response = [
+            'success' => true,
+            'message' => $this->request->config['successMessage'] ?? ''
+        ];
+
+        if ($this->hasErrors()) {
+            $response['success']     = false;
+            $response['error_count'] = count($this->errors);
+            $response['message']     = $this->modx->getPlaceholder($this->modx->getOption('placeholderPrefix', $this->request->config, null) . 'validation_error_message');
+            $response['errors']      = $this->getErrors();
+        }
+
+        $response['fields'] = $this->request->dictionary->fields;
+
+        if ($this->postHooks && $this->hasHook('redirect')) {
+            $response['redirect_url'] = $this->postHooks->getRedirectUrl();
+        }
+
+        return $response;
+    }
+
+    /**
      * Gets a unique session-based store key for storing form submissions.
      *
      * @return string
