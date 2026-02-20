@@ -112,6 +112,19 @@
             body: formData
         })
         .then(function (response) {
+            if (!response.ok) {
+                return response.text().then(function (text) {
+                    throw new Error('[FormIt] Server returned HTTP ' + response.status + ': ' + text.substring(0, 200));
+                });
+            }
+
+            var contentType = response.headers.get('Content-Type') || '';
+            if (contentType.indexOf('application/json') === -1) {
+                return response.text().then(function (text) {
+                    throw new Error('[FormIt] Expected JSON but received ' + contentType + ': ' + text.substring(0, 200));
+                });
+            }
+
             return response.json();
         })
         .then(function (data) {
