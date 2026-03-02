@@ -513,7 +513,7 @@ FormIt.window.ExportForms = function(config) {
             name        : 'delimiter',
             anchor      : '100%',
             allowBlank  : false,
-            value       : ';'
+            value       : ''
         }, {
             xtype       : MODx.expandHelp ? 'label' : 'hidden',
             html        : _('formit.label_export_delimiter_desc'),
