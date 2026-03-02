@@ -51,6 +51,9 @@ systemSettings:
   - key: frontend_js
     value: 'js/web/formit.js'
     area: formit
+  - key: export_csv_delimiter
+    area: formit
+    value: ;
 
 chunks:
   - name: fiDefaultEmailTpl
