@@ -11,6 +11,8 @@ $_lang['formit.desc']                                           = 'View all subm
 
 $_lang['area_formit']                                           = 'FormIt';
 $_lang['area_formit_recaptcha']                                 = 'FormIt reCAPTCHA';
+$_lang['setting_formit.upload_blocked_extensions']              = 'Blocked upload file extensions';
+$_lang['setting_formit.upload_blocked_extensions_desc']         = 'Comma-separated list of file extensions that FormIt will always block for uploads, even if MODX upload settings allow them.';
 
 $_lang['formit.form']                                           = 'Form';
 $_lang['formit.forms']                                          = 'Forms';

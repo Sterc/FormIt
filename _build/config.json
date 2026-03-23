@@ -479,6 +479,10 @@
             "value": 30,
             "area": "formit"
         },{
+            "key": "upload_blocked_extensions",
+            "value": "php,php4,php5,php7,php8,phar,htm,html,phtml,shtml,js,mjs,bin,csh,out,run,sh,htaccess,svg,svgz",
+            "area": "formit"
+        },{
             "key": "max_chars_textfield",
             "value": 125,
             "area": "formit"
