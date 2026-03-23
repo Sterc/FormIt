@@ -40,6 +40,9 @@ systemSettings:
   - key: cleanform.days
     area: formit
     value: 30
+  - key: upload_blocked_extensions
+    area: formit
+    value: php,php4,php5,php7,php8,phar,htm,html,phtml,shtml,js,mjs,bin,csh,out,run,sh,htaccess,svg,svgz
   - key: max_chars_textfield
     area: formit
     value: 125
