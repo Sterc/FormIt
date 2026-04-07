@@ -1,5 +1,11 @@
 Changelog for FormIt.
 
+FormIt 5.1.2
+====================================
+- Security fix: correctly block dangerous upload extensions in file upload handling.
+- Add system setting `formit.upload_blocked_extensions` with a safe default list.
+- Normalize and strictly validate file extensions before allowlist checks.
+
 FormIt 5.1.0
 ====================================
 - Convert cleanup to modx3 structure.
