@@ -1,49 +1,53 @@
 Changelog for FormIt.
 
-FormIt 5.1.2
-====================================
+# FormIt 5.1.3
+
+- Fix installation issue.
+
+# FormIt 5.1.2
+
 - Security fix: correctly block dangerous upload extensions in file upload handling.
 - Add system setting `formit.upload_blocked_extensions` with a safe default list.
 - Normalize and strictly validate file extensions before allowlist checks.
 
-FormIt 5.1.0
-====================================
+# FormIt 5.1.0
+
 - Convert cleanup to modx3 structure.
 
-FormIt 5.0.1
-====================================
+# FormIt 5.0.1
+
 - Fix Spam hook for MODX3 (PR#268, thanks to byEmma)
 - Fix FormItSaveForm hook (#274)
 - Fix pdoTools/pdoFetch checks, replace getService with modx->services (#271).
 - Fix xpdo class references for MODX3.
 
-FormIt 5.0.0
-====================================
+# FormIt 5.0.0
+
 - MODX3 refactor
 
-FormIt 4.2.7
-====================================
+# FormIt 4.2.7
+
 - Use server_offset_time for grid in manager (PR#219)
 - Fix fatal error when empty responce in cronjob (PR#230)
 - Add RU (PR#245) and IT (PR#257) translation of country list
 - Change stopforumspam API URL (PR#248)
 - Fix property for getTableName in resolver (PR#247)
 
-FormIt 4.2.6
-====================================
+# FormIt 4.2.6
+
 - Add support for UTF-8 when exporting (PR#221)
 - Move limit from foreach to query in migration class (PR#236)
 - Remove unnecessary mail->reset from autoresponder hook (PR#240)
 - Add Ukrainian lexicon + some changes to RU and EN lexicons (PR#242)
 - Update Composer autoloader for newer Composer versions (PR#243)
 
-FormIt 4.2.5
-====================================
+# FormIt 4.2.5
+
 - Added new properties to email hook (#229, thanks to @jako)
 - emailSelectTo, emailSelectToName, emailSelectField
 
-FormIt 4.2.4
-====================================
+# FormIt 4.2.4
+
 - Fix export form select width (#218)
 - Fix limit of form filter (#206)
 - Fix path to clean processor for cronjob (#215, thanks to @bennyb)
@@ -51,20 +55,20 @@ FormIt 4.2.4
 - Fix PHP notice 'Only variables should be assigned by reference' in Hook.php (#212, thanks to @intersel)
 - Updated Russian translation (#208, thanks to @webinmd)
 
-FormIt 4.2.3
-====================================
+# FormIt 4.2.3
+
 - FormIt 4.2.0 release bug - Fix migration of forms with encryption
 
-FormIt 4.2.2
-====================================
+# FormIt 4.2.2
+
 - FormIt 4.2.0 release bug - Altering tables on update (#203)
 
-FormIt 4.2.1
-====================================
+# FormIt 4.2.1
+
 - FormIt 4.2.0 release bug (#202)
 
-FormIt 4.2.0
-====================================
+# FormIt 4.2.0
+
 - Bug on hasHook() fixed (#182, #181, #170, #193)
 - ExtJS refactored for faster and better UI/UX
 - IP number added to the grid (#194)
@@ -78,24 +82,24 @@ FormIt 4.2.0
 - All other language files checked and filled with English strings
 - Formit deprecation notice in 2.7.0dev bug fixed (#190)
 
-FormIt 4.1.2
-====================================
+# FormIt 4.1.2
+
 - Fix spam hook for better spam prevention thanks to Kristoffer Karlström
 - Fix FormItLoadSavedForm for encrypted forms
 
-FormIt 4.1.1
-====================================
+# FormIt 4.1.1
+
 - Added new hook "renderHooks", which triggers just before rendering the form
 
-FormIt 4.1.0
-====================================
+# FormIt 4.1.0
+
 - This release is made possible thanks to Bert Kooij / Census.nl. Thanks!
 - Added new button in Manager page for manually removing forms.
 - Added new system setting for the default amount of days.
 - Added cronjob task for automatically deletion of old forms.
 
-FormIt 4.0.1
-====================================
+# FormIt 4.0.1
+
 - Add option to specify csv delimiter for form export
 - Add GDPR compliant attachment handling (#154) - Thanks to @wax100
 - Allow empty isDate validator (PR#164) - Thanks to JoshuaLuckers
@@ -103,8 +107,8 @@ FormIt 4.0.1
 - Fix modx->log calls in various classes (#161)
 - Fix setting redirectParams variable (#165)
 
-FormIt 4.0.0
-====================================
+# FormIt 4.0.0
+
 - Move formit base classes to /src/ folder and add namespace
 - Update existing classes to extend new classes
 - Update all snippets to use modx getService
@@ -115,12 +119,12 @@ FormIt 4.0.0
 - Updated German lexicons (PR#150)
 - Add 'Form' column to form export (PR#149)
 
-FormIt 3.0.4
-====================================
+# FormIt 3.0.4
+
 - Fix checkbox values not showing in email
 
-FormIt 3.0.3
-====================================
+# FormIt 3.0.3
+
 - Fix FormItSaveForm to allow multiple fields with same fieldName
 - Add 'saveTmpFiles' FormIt snippet property to enable/disable saving files to tmp directory
 - Remove list() function from formitsaveform snippet for better PHP version compatibility (#98)
@@ -131,23 +135,23 @@ FormIt 3.0.3
 - Optimize FormItForm export class for better performance (#120)
 - Add 'attachFilesToEmail' property to control if files are added as attachment to email (#122)
 
-FormIt 3.0.2
-====================================
+# FormIt 3.0.2
+
 - Fix encryption in formitsaveform snippet to save correct encryption_type
 - Fix bug in forms grid when decrypting encrypted forms fail
 - Fix migration to check if decrypted data is correct
 
-FormIt 3.0.1
-====================================
+# FormIt 3.0.1
+
 - Store file uploads in tmp folder to prevent file uploads getting lost in multistep forms
 - Add checks for OpenSSL in classes and encryption CMP tab
 - Add method_exists check to plugin to prevent errors when method not exists
 - Update context-menu in forms-encryption grid to show only encrypt or decrypt
-- Set placeholders for file upload $_FILES array
+- Set placeholders for file upload $\_FILES array
 - Add option to FormItCountryOptions snippet to limit country list to selected countries only (PR#123) - thanks to gadgetto
 
-FormIt 3.0.0
-====================================
+# FormIt 3.0.0
+
 - PLEASE NOTE: THIS UPDATE CONTAINS A MIGRATION SCRIPT FOR ENCRYPTED FORMS - Read more about it at https://github.com/Sterc/FormIt
 - Mcrypt encryption/decryption methods replaced with openssl due to mcrypt being deprecated in PHP 7.1
 - Add default file-based chunks as objects
@@ -156,8 +160,8 @@ FormIt 3.0.0
 - Add Dutch countries for FormItCountryOptions, thanks to visvoer (PR#110)
 - Add extjs stateful parameters to CMP tabs
 
-FormIt 2.2.11
-====================================
+# FormIt 2.2.11
+
 - Added storeLocation property to FormIt and FormItRetriever. (issue #95, PR #105#106#107)
 - Changed default behaviour of emailReplyTo parameter to fallback to email field in form (issue #101)
 - Changed math hook to store values in session, preventing easy bypass of math hook (issue #64)
@@ -171,60 +175,60 @@ FormIt 2.2.11
 - Add system setting for form_encryptkey, to not rely on site_id (issue #68)
 - Fix saved forms export when using encrypted forms (issue #48)
 
-FormIt 2.2.10
-====================================
+# FormIt 2.2.10
+
 - Merged PR#58: Added BOM for Excel to understand UTF-8 non-latin symbols properly. (thanks to govza)
 - Merged PR#73: JSON output options for errors and hooks
 - Merged PR#79: Create German lexicon for FormIt-CMP (thanks to sebastian-marinescu)
 
-FormIt 2.2.9
-====================================
+# FormIt 2.2.9
+
 - Merging PR#74 from Jako which solves multiple issues.
 - Fix XSS vulnerabilities
 - Javascript code cleanup
 - Fix empty math operator after form submission #d782c29
 
-FormIt 2.2.8
-====================================
+# FormIt 2.2.8
+
 - Fixed export limit and added form dropdown paging #60
 - Fixed typo property lexicons #57
 - Added templates path to config #63
 - Added loading lexicons in ficountryoptions class #21
 - Added ability to dynamically set formName by setting placeholder inside formName equal to an existing form field key #45
 
-FormIt 2.2.7
-====================================
+# FormIt 2.2.7
+
 - Optimised export
 
-FormIt 2.2.6
-====================================
+# FormIt 2.2.6
+
 - Fixed empty placeholder for file field in autoresponder
 
-FormIt 2.2.5
-====================================
+# FormIt 2.2.5
+
 - Fixed creating table on update
 - Added new tab inside CMP for managing encryption
 - Added missing br on auto emailTpl
 
-FormIt 2.2.4
-====================================
+# FormIt 2.2.4
+
 - Fixed bug inside FormItSaveForm and PR #43
 
-FormIt 2.2.3
-====================================
+# FormIt 2.2.3
+
 - Added encryption to saved forms
 - Added formname to grid
 - Saved form is now returned from the hook
 - Export unlimited items
 - Add RU translation
 
-FormIt 2.2.2
-====================================
+# FormIt 2.2.2
+
 - Added CMP for the saved forms
 - Fixed whitespace PR on required checkboxes
 
-FormIt 2.2.1
-====================================
+# FormIt 2.2.1
+
 - Updated numbers generation for math captcha #5
 - German translation #10
 - Added missing formit.not_regexp lexicon #15
@@ -236,8 +240,8 @@ FormIt 2.2.1
 - Update snippet.formitisselected.php #12
 - Canadian options for FormitStateOptions
 
-FormIt 2.2.0
-====================================
+# FormIt 2.2.0
+
 - [#8382] Prevent issue with checkboxes/radios causing text-parsing problems with required validator
 - Fixed issue with custom error message for vTextPasswordConfirm not respected
 - [#9457] Fixed issue with commas in values causing errors with FormItIsChecked & FormItIsSelected
@@ -246,17 +250,17 @@ FormIt 2.2.0
 - Add option, defaulting true, to trim spaces from sides of values before validation
 - [#8785] Fix E_STRICT error in fiDictionary
 
-FormIt 2.1.2
-====================================
+# FormIt 2.1.2
+
 - Various language updates
 - [#7250] Fix issue with 0 not passing :required filter
 
-FormIt 2.1.1
-====================================
+# FormIt 2.1.1
+
 - [#8204] Fix issue with FormItAutoResponder and processing of MODX tags
 
-FormIt 2.1.0
-====================================
+# FormIt 2.1.0
+
 - [#7620] Allow for MODX tags in email templates, as well as pass-through of snippet properties to tpl
 - [#7502] Add ability to find type of hook by using $hook->type
 - [#8151] More sanity checking for FormItAutoResponder and replyTo addresses
@@ -265,29 +269,29 @@ FormIt 2.1.0
 - Enhance validation templating for validationErrorBulkTpl
 - Add &country option to FormItStateOptions to allow loading of non-US states (currently us/de)
 
-FormIt 2.0.3
-====================================
+# FormIt 2.0.3
+
 - Update Czech translation
 - Fix issue with French accents in translation
 - [#6021] Refactor Russian reCaptcha translations
 - [#6618] Standardize XHTML in reCaptcha usage
 
-FormIt 2.0.2
-====================================
+# FormIt 2.0.2
+
 - [#4864] Fix issue with isNumber not allowing blank fields
 - [#5404] Fix issues with checkboxes and array fields in FormItAutoResponder
 - [#5269] Fix issues with checkboxes in various forms in emails
 - [#5792] Update reCaptcha URLs
 
-FormIt 2.0.1
-====================================
+# FormIt 2.0.1
+
 - [#5525] Add &allowFiles property, that when set to 0, prevents file submissions on form
 - [#5484] Fix issue with double validation error spans
 - Fix issue where config was not passed to hooks
 - Update German translation
 
-FormIt 2.0.0
-====================================
+# FormIt 2.0.0
+
 - [#3514] Add ability to customize validator error messages per FormIt form and per field
 - [#4705] Add regexp validator
 - [#5454] Fix issue with customValidators property in 2.0.0-rc2
@@ -297,8 +301,8 @@ FormIt 2.0.0
 - Fix issue with FormItStateOptions and &useAbbr
 - [#5267] Fix issue with FormItRetriever and array fields
 
-FormIt 1.7.0
-====================================
+# FormIt 1.7.0
+
 - Add ability to have "Frequent Visitors" optgroup in FormItCountryOptions, moving specified countries to the top of the list in an optgroup
 - Add missing property translations for FormItStateOptions snippet
 - Fix small issue with stored values after validation of fields
@@ -307,35 +311,35 @@ FormIt 1.7.0
 - [#5101] Fix issue with emailMultiSeparator and emailMultiWrapper default values
 - Fix issue with bracketed field names being added as extra fields post-validation with . prefix
 
-FormIt 1.6.0
-====================================
+# FormIt 1.6.0
+
 - [#4708] Add support for bracketed fields, such as contact[name]
 - [#5038] Fix uninitialized variable warnings in reCaptcha service
 - [#4993] Add Italian translation and fix recaptcha links
 - Fix issue where fields could be removed via DOM from form and be bypassed
 - Add &emailMultiSeparator and &emailMultiWrapper for handling display of checkboxes/multi-selects in email hook
 
-FormIt 1.5.6
-====================================
+# FormIt 1.5.6
+
 - [#4564] Fix redirectTo with non-web contexts
 
-FormIt 1.5.5
-====================================
+# FormIt 1.5.5
+
 - [#4168] Add emailConvertNewlines property for handling newlines in HTML emails
 - [#4057] Prevent math hook from generating similar numbers
 - [#4302] Cleanups to FormItAutoResponder snippet
 - [#3991] Fix issue with checkbox values in emails
 
-FormIt 1.5.4
-====================================
+# FormIt 1.5.4
+
 - Fix issue with math hook where error placeholders were incorrect
 - Fix issue where emailHtml property was not respected in email hook
 - Fix issue where hooks were not passed customProperties array
 - [#51] Allow blank fields to be passed with :email validator
 - [#55] Allow all fields to be accessed in custom validators
 
-FormIt 1.5.3
-====================================
+# FormIt 1.5.3
+
 - [#40] Add ability to display all error messages in bulk at top, added validationErrorBulkTpl for templating each one
 - [#52] Add a general validation error message property, validationErrorMessage, that shows when validation fails
 - [#53] Fix bug that prevented recaptcha options from working
@@ -347,19 +351,19 @@ FormIt 1.5.3
 - [#39] Fix issue with FormItIsChecked/Selected to prevent output from occurring if not checked
 - [#37] Fix allowTags validator to work, and work with parameters encapsulated by ^
 
-FormIt 1.5.2
-====================================
+# FormIt 1.5.2
+
 - Fixed security vulnerability
 - Added math hook, allowing anti-spam math field measure
 - Added more debugging info to email hook
 
-FormIt 1.5.1
-====================================
-- Fixed issue where &store was not respecting values set in post-hooks
-- Redirect hook now redirects *after* all other hooks execute
+# FormIt 1.5.1
 
-FormIt 1.5.0
-====================================
+- Fixed issue where &store was not respecting values set in post-hooks
+- Redirect hook now redirects _after_ all other hooks execute
+
+# FormIt 1.5.0
+
 - Fixed bug with redirectParams not parsing placeholders in the params
 - Added redirectParams property, which allows a JSON object of params to be passed when using redirect hook
 - Added spamCheckIp property, defaults to false, to check IP as well in spam hook
@@ -369,21 +373,21 @@ FormIt 1.5.0
 - Fixed invalid offset error in checkbox validation
 - Added recaptchaJS to allow for custom JS overriding of reCaptcha options var
 
-FormIt 1.4.1
-====================================
+# FormIt 1.4.1
+
 - Added sanity check for emailHtml property on email hook
 - Added sanity check for replyto/cc/bcc emails on email hook
 - Added ability to change language via &language parameter
 
-FormIt 1.4.0
-====================================
+# FormIt 1.4.0
+
 - Fixed bug with recaptcha and other hooks error display messages
 - Introduced &validate parameter for more secure validation parameters to prevent POST injection
 - Added FormItIsChecked and FormItIsSelected custom output filters for easier checkbox/radio/select handling of selected values
 - Added &placeholderPrefix for FormIt snippet, defaults to `fi.`
 
-FormIt 1.3.0
-====================================
+# FormIt 1.3.0
+
 - Fixed issue with isNumber validator
 - Added FormItRetriever snippet to get data from a FormIt submission for thank you pages
 - Added extra API methods for custom hooks for easier data grabbing
@@ -392,12 +396,12 @@ FormIt 1.3.0
 - Fixed ordering for &emailFrom property
 - Added width/height for reCaptcha, however, reCaptcha APIs prevent resizing via calls
 
-FormIt 1.2.1
-====================================
+# FormIt 1.2.1
+
 - Added recaptchaTheme property, which allows theming of reCaptcha hook
 
-FormIt 1.2.0
-====================================
+# FormIt 1.2.0
+
 - Added preHooks property to allow for custom snippets to pre-fill fields
 - Added clearFieldsOnSuccess property to clear fields after a successful form submission without a redirect
 - Allow placeholders of fields in all email properties
@@ -405,12 +409,12 @@ FormIt 1.2.0
 - Added fiValidator::addError for easier error loading for custom validators
 - Added German translation
 
-FormIt 1.1.7
-====================================
+# FormIt 1.1.7
+
 - Added bcc and cc properties for email hook
 
-FormIt 1.1.6
-====================================
+# FormIt 1.1.6
+
 - i18n of Snippet properties
 - Added emailReplyToName and emailReplyTo properties for email hook
 - Removed SMTP settings as those are now in Revo
@@ -418,13 +422,13 @@ FormIt 1.1.6
 - Added islowercase and isuppercase validators
 - Added multibyte support to validators
 
-FormIt 1.1.5
-====================================
+# FormIt 1.1.5
+
 - Added Russian translation
 - Updated copyright information
 
-FormIt 1.1.4
-====================================
+# FormIt 1.1.4
+
 - Fixed bug with isDate check
 - Migrated FormIt to Git
 - Fixed bug that caused validators to not fire
@@ -435,8 +439,8 @@ FormIt 1.1.4
 - Added reCaptcha support via the recaptcha hook
 - Adjusted copyright information to reflect current year
 
-FormIt 1.0
-====================================
+# FormIt 1.0
+
 - Fixed bug with emailFrom property getting overwritten
 - [#ADDON-122] Fixed incorrect message in spam lexicon item
 - Added 'spam' hook that utilizes StopForumSpam spam filter. Will filter the fields in the property &spamEmailFields
