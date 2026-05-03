@@ -46,6 +46,9 @@ systemSettings:
   - key: max_chars_textfield
     area: formit
     value: 125
+  - key: export_csv_delimiter
+    area: formit
+    value: ;
 
 chunks:
   - name: fiDefaultEmailTpl
