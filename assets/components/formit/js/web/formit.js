@@ -68,6 +68,9 @@
 
         var self = this;
 
+        this._clearMessages();
+        this._setLoading(true);
+
         // _resolveRecaptcha has its own guards — resolves immediately if not configured
         this._resolveRecaptcha(formData)
             .then(function () {
@@ -75,6 +78,7 @@
             })
             .catch(function (error) {
                 console.error('[FormIt] reCAPTCHA failed:', error);
+                self._setLoading(false);
                 self._showMessage('[data-formit-error-message]', error.message || 'Request failed');
                 self._dispatch('formit:error', { data: null, error: error });
             });
@@ -124,9 +128,6 @@
         }
 
         formData.append('ajaxToken', this.ajaxToken);
-
-        this._clearMessages();
-        this._setLoading(true);
 
         var self = this;
         var form = this.form;
