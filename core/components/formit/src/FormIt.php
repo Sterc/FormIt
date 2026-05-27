@@ -16,6 +16,8 @@ use Sterc\FormIt\Model\FormItForm;
 
 class FormIt
 {
+    const DEFAULT_RECAPTCHA_ACTION = 'submit';
+
     /**
      * @access public.
      * @var \modX.

@@ -1,5 +1,14 @@
 Changelog for FormIt.
 
+# FormIt 5.2.1
+
+- Upgrade reCAPTCHA from v1 to v3.
+- Replace `recaptcha_public_key` / `recaptcha_private_key` system settings with `recaptcha_site_key` / `recaptcha_secret_key`.
+- Add `recaptcha_min_score` system setting (default: 0.5).
+- Add `recaptchaAction` snippet property to override the default reCAPTCHA action name.
+- Remove deprecated `recaptchaTheme`, `recaptchaJs`, `recaptcha_use_ssl` parameters.
+- Rewrite `formit.js`: AJAX and reCAPTCHA v3 token injection, CustomEvent-based public API.
+
 # FormIt 5.2.0
 
 - Add AJAX form submission support (#302)

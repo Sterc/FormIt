@@ -50,26 +50,18 @@ class Recaptcha
      */
     public function process()
     {
-        $passed = false;
         /** @var RecaptchaService $reCaptcha */
         $reCaptcha = $this->formit->request->loadReCaptcha();
-        if (empty($reCaptcha->config[RecaptchaService::OPT_PRIVATE_KEY])) {
+        if (empty($reCaptcha->config[RecaptchaService::OPT_SECRET_KEY])) {
             $this->hook->addError('recaptcha', $this->modx->lexicon('recaptcha.no_api_key'));
             return false;
         }
 
-        $response = $reCaptcha->checkAnswer(
-            $_SERVER['REMOTE_ADDR'],
-            $_POST['recaptcha_challenge_field'] ?? '',
-            $_POST['recaptcha_response_field'] ?? ''
-        );
+        $token  = $_POST['g-recaptcha-response'] ?? '';
+        $passed = $reCaptcha->verify($token);
 
-        if (!$response->is_valid) {
-            $this->hook->addError('recaptcha', $this->modx->lexicon('recaptcha.incorrect', array(
-                'error' => (!empty($response->error) && $response->error != 'incorrect-captcha-sol') ? $response->error : '',
-            )));
-        } else {
-            $passed = true;
+        if (!$passed) {
+            $this->hook->addError('recaptcha', $this->modx->lexicon('recaptcha.incorrect'));
         }
 
         return $passed;
