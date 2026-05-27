@@ -1,5 +1,9 @@
 Changelog for FormIt.
 
+# FormIt 5.2.0
+
+- Add AJAX form submission support (#302)
+
 # FormIt 5.1.3
 
 - Fix installation issue.

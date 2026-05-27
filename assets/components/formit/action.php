@@ -88,19 +88,26 @@ if ($fi->postHooks) {
     }
 }
 
-/* Collect all placeholders for AJAX response */
+/* Collect whitelisted placeholders for AJAX response */
 $prefix    = $fi->config['placeholderPrefix'];
 $prefixLen = strlen($prefix);
 
+$allowed = ['successMessage', 'validation_error_message', 'error_message', 'validation_error'];
+
 $placeholders = [];
 foreach ($modx->placeholders as $key => $value) {
-    if (strpos($key, $prefix) === 0) {
-        /* Remove prefix for response */
-        $placeholders[substr($key, $prefixLen)] = $value;
+    if (strpos($key, $prefix) !== 0) {
+        continue;
+    }
+    $unprefixed = substr($key, $prefixLen);
+    if (strpos($unprefixed, 'error.') === 0 || in_array($unprefixed, $allowed, true)) {
+        $placeholders[$unprefixed] = $value;
     }
 }
 $response['placeholders'] = $placeholders;
 
-@ob_clean();
+if (ob_get_level() > 0) {
+    ob_clean();
+}
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
 exit;

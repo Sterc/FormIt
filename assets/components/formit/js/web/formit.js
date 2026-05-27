@@ -214,7 +214,9 @@
         if (el) {
             el.innerHTML = message;
         } else {
-            alert(message);
+            var stripEl = document.createElement('div');
+            stripEl.innerHTML = message;
+            alert(stripEl.textContent || stripEl.innerText || message);
         }
     };
 

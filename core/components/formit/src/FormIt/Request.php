@@ -144,7 +144,7 @@ class Request
             $properties = $this->config;
             $properties['pageId'] = $this->modx->resource ? $this->modx->resource->get('id') : null;
 
-            $ajaxToken = md5(serialize($properties));
+            $ajaxToken = bin2hex(random_bytes(16));
 
             if (session_id() !== '') {
                 $_SESSION['formit'][$ajaxToken] = $properties;
