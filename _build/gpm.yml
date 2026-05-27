@@ -3,7 +3,7 @@ lowCaseName: formit
 description: FormIt is a dynamic form processing Snippet for MODx Revolution. It handles a form after submission, performing validation and followup actions like sending an email. It does not generate the form, but it can repopulate it if it fails validation.
 author: Sterc
 namespace: Sterc\FormIt
-version: 5.2.0
+version: 5.2.1
 
 build:
   setupOptions: "setup.options.php"
@@ -18,14 +18,13 @@ systemSettings:
     type: textfield
     area: general
     value:
-  - key: recaptcha_public_key
+  - key: recaptcha_site_key
     area: formit_recaptcha
-  - key: recaptcha_private_key
+  - key: recaptcha_secret_key
     area: formit_recaptcha
-  - key: recaptcha_use_ssl
+  - key: recaptcha_min_score
     area: formit_recaptcha
-    type: combo-boolean
-    value: 0
+    value: 0.5
   - key: exclude_contexts
     area: formit
     value: mgr
@@ -137,22 +136,9 @@ snippets:
         description: prop_formit.spamcheckip_desc
         type: combo-boolean
         value: "0"
-      - name: recaptchaJs
-        description: prop_formit.recaptchajs_desc
-        value: "{}"
-      - name: recaptchaTheme
-        description: prop_formit.recaptchatheme_desc
-        type: list
-        options:
-          - name: formit.opt_red
-            value: red
-          - name: formit.opt_white
-            value: white
-          - name: formit.opt_clean
-            value: clean
-          - name: formit.opt_blackglass
-            value: blackglass
-        value: clean
+      - name: recaptchaAction
+        description: prop_formit.recaptchaaction_desc
+        value:
       - name: redirectTo
         description: prop_formit.redirectto_desc
         value:

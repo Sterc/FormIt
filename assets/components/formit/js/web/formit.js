@@ -9,33 +9,24 @@
     'use strict';
 
     /**
+     * Global config. Set by PHP via Object.assign(FormIt, {...}).
+     */
+    window.FormIt = {
+        actionUrl: '/assets/components/formit/action.php',
+        recaptchaDefaultAction: 'submit'
+    };
+
+    /**
      * @param {HTMLFormElement} form
-     * @param {Object} [options]
      * @constructor
      */
-    function FormIt(form, options) {
+    function FormItForm(form) {
         if (!(form instanceof HTMLFormElement)) {
             console.error('[FormIt] First argument must be a form element.');
             return;
         }
 
         this.form = form;
-        this.options = {};
-
-        for (var key in FormIt.defaults) {
-            if (FormIt.defaults.hasOwnProperty(key)) {
-                this.options[key] = FormIt.defaults[key];
-            }
-        }
-
-        if (options) {
-            for (var key in options) {
-                if (options.hasOwnProperty(key)) {
-                    this.options[key] = options[key];
-                }
-            }
-        }
-
         this._lastSubmitter = null;
         this.form.addEventListener('click', this._onClickSubmit.bind(this));
         this.form.addEventListener('submit', this._onSubmit.bind(this));
@@ -46,31 +37,19 @@
      * @param {MouseEvent} e
      * @private
      */
-    FormIt.prototype._onClickSubmit = function (e) {
+    FormItForm.prototype._onClickSubmit = function (e) {
         var btn = e.target.closest('[type="submit"]');
         this._lastSubmitter = btn && btn.name ? btn : null;
-    };
-
-    /**
-     * Global defaults. actionUrl is set by PHP via regClientScript.
-     */
-    FormIt.defaults = {
-        actionUrl: '',
-        clearOnSuccess: true,
-        onBeforeSubmit: null,
-        onSuccess: null,
-        onError: null,
-        onComplete: null,
-        onRedirect: null
     };
 
     /**
      * @param {SubmitEvent} e
      * @private
      */
-    FormIt.prototype._onSubmit = function (e) {
-        if (!this.options.actionUrl) {
-            console.warn('[FormIt] actionUrl is not configured. Falling back to standard form submission.');
+    FormItForm.prototype._onSubmit = function (e) {
+        this.ajaxToken = this.form.getAttribute('data-formit-ajax-token');
+
+        if (!this.ajaxToken && !this.form.querySelector('[name="g-recaptcha-response"]')) {
             return;
         }
 
@@ -80,31 +59,79 @@
         var beforeEvent = this._dispatch('formit:beforesubmit', { form: this.form }, true);
         if (beforeEvent.defaultPrevented) return;
 
-        // callback
-        if (typeof this.options.onBeforeSubmit === 'function') {
-            if (this.options.onBeforeSubmit(this.form) === false) return;
-        }
-
-        this._clearMessages();
-        this._setLoading(true);
-
         var submitter = e.submitter || this._lastSubmitter || this.form.querySelector('[type="submit"]');
-        var formData = new FormData(this.form);
+        var formData  = new FormData(this.form);
 
-        // Include the submit button so server-side submitVar check works
         if (submitter && submitter.name) {
             formData.append(submitter.name, submitter.value || '');
         }
 
-        // Add ajaxToken from data-attribute
-        var token = this.form.getAttribute('data-formit-ajax-token');
-        if (token) {
-            formData.append('ajaxToken', token);
-        }
-
         var self = this;
 
-        fetch(this.options.actionUrl, {
+        // _resolveRecaptcha has its own guards — resolves immediately if not configured
+        this._resolveRecaptcha(formData)
+            .then(function () {
+                self._submit(formData);
+            })
+            .catch(function (error) {
+                console.error('[FormIt] reCAPTCHA failed:', error);
+                self._showMessage('[data-formit-error-message]', error.message || 'Request failed');
+                self._dispatch('formit:error', { data: null, error: error });
+            });
+    };
+
+    /**
+     * Execute reCAPTCHA v3 and fill both formData and the response field.
+     * Resolves immediately when reCAPTCHA is not configured.
+     *
+     * @param {FormData} formData
+     * @returns {Promise<void>}
+     * @private
+     */
+    FormItForm.prototype._resolveRecaptcha = function (formData) {
+        var recaptchaResponseField = this.form.querySelector('[name="g-recaptcha-response"]');
+
+        if (!recaptchaResponseField || typeof grecaptcha === 'undefined') {
+            return Promise.resolve();
+        }
+
+        var actionField     = this.form.querySelector('[name="g-recaptcha-action"]');
+        var recaptchaAction = (actionField && actionField.value) || FormIt.recaptchaDefaultAction;
+
+        return new Promise(function (resolve, reject) {
+            grecaptcha.ready(function () {
+                grecaptcha.execute(FormIt.recaptchaSiteKey, { action: recaptchaAction })
+                    .then(function (token) {
+                        recaptchaResponseField.value = token;
+                        formData.set('g-recaptcha-response', token);
+                        resolve();
+                    })
+                    .catch(reject);
+            });
+        });
+    };
+
+    /**
+     * Submit the form: native submit or AJAX fetch depending on ajaxToken.
+     *
+     * @param {FormData} formData
+     * @private
+     */
+    FormItForm.prototype._submit = function (formData) {
+        if (!this.ajaxToken) {
+            this.form.submit();
+            return;
+        }
+
+        formData.append('ajaxToken', this.ajaxToken);
+
+        this._clearMessages();
+        this._setLoading(true);
+
+        var self = this;
+        var form = this.form;
+
+        fetch(FormIt.actionUrl, {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             body: formData
@@ -129,21 +156,14 @@
             self._handleResponse(data);
         })
         .catch(function (error) {
-            console.error('[FormIt] Request failed:', error);
-
-            self._showMessage('[data-formit-error-message]', error.message || 'Request failed');
-
-            self._dispatch('formit:error', { data: null, error: error });
-            if (typeof self.options.onError === 'function') {
-                self.options.onError(null, error);
-            }
+            // AJAX failed — fall back to native submit so the request still goes through.
+            // reCAPTCHA token is already set in the response field value.
+            console.warn('[FormIt] AJAX failed, falling back to native submit:', error);
+            form.submit();
         })
         .finally(function () {
             self._setLoading(false);
             self._dispatch('formit:complete', {});
-            if (typeof self.options.onComplete === 'function') {
-                self.options.onComplete();
-            }
         });
     };
 
@@ -151,51 +171,35 @@
      * @param {Object} data - Response from processForm()
      * @private
      */
-    FormIt.prototype._handleResponse = function (data) {
-        var placeholders = data.placeholders || {};
+    FormItForm.prototype._handleResponse = function (data) {
+        var placeholders   = data.placeholders || {};
         var hasFieldErrors = false;
 
-        // Fill field errors
         for (var key in placeholders) {
             if (placeholders.hasOwnProperty(key) && key.indexOf('error.') === 0) {
                 hasFieldErrors = true;
-                var fieldName = key.substring(6); // Remove prefix "error."
+                var fieldName = key.substring(6);
                 var el = this.form.querySelector('[data-formit-error="' + fieldName + '"]');
                 if (el) el.innerHTML = placeholders[key];
             }
         }
 
-        // Fill messages with alert fallback
         this._showMessage('[data-formit-success-message]', placeholders.successMessage || '');
         this._showMessage('[data-formit-validation-error-message]', placeholders.validation_error_message || '');
         this._showMessage('[data-formit-error-message]', placeholders.error_message || '');
 
-        // Determine if this is an error response
         var isError = !data.success || hasFieldErrors || placeholders.validation_error || placeholders.error_message;
 
         if (isError) {
             this._dispatch('formit:error', { data: data });
-            if (typeof this.options.onError === 'function') {
-                this.options.onError(data);
-            }
         } else {
             this._dispatch('formit:success', { data: data });
-            if (typeof this.options.onSuccess === 'function') {
-                this.options.onSuccess(data);
-            }
 
-            if (this.options.clearOnSuccess) {
-                this.form.reset();
-            }
+            this.form.reset();
 
-            // Handle redirect (cancelable)
             if (data.redirect_url) {
                 var redirectEvent = this._dispatch('formit:redirect', { url: data.redirect_url }, true);
                 if (redirectEvent.defaultPrevented) return;
-
-                if (typeof this.options.onRedirect === 'function') {
-                    if (this.options.onRedirect(data.redirect_url) === false) return;
-                }
 
                 window.location.href = data.redirect_url;
             }
@@ -203,12 +207,11 @@
     };
 
     /**
-     * Show a message in a container element or fall back to alert.
      * @param {string} selector
      * @param {string} message
      * @private
      */
-    FormIt.prototype._showMessage = function (selector, message) {
+    FormItForm.prototype._showMessage = function (selector, message) {
         if (!message) return;
         var el = this.form.querySelector(selector);
         if (el) {
@@ -221,10 +224,9 @@
     };
 
     /**
-     * Clear all message and error elements in the form.
      * @private
      */
-    FormIt.prototype._clearMessages = function () {
+    FormItForm.prototype._clearMessages = function () {
         this.form.querySelectorAll('[data-formit-error]').forEach(function (el) {
             el.textContent = '';
         });
@@ -235,11 +237,10 @@
     };
 
     /**
-     * Toggle loading state on the form.
      * @param {boolean} loading
      * @private
      */
-    FormIt.prototype._setLoading = function (loading) {
+    FormItForm.prototype._setLoading = function (loading) {
         if (loading) {
             this.form.classList.add('formit-loading');
         } else {
@@ -253,14 +254,13 @@
     };
 
     /**
-     * Dispatch a CustomEvent on the form element.
      * @param {string} name
      * @param {Object} detail
      * @param {boolean} [cancelable]
      * @returns {CustomEvent}
      * @private
      */
-    FormIt.prototype._dispatch = function (name, detail, cancelable) {
+    FormItForm.prototype._dispatch = function (name, detail, cancelable) {
         var event = new CustomEvent(name, {
             detail: detail,
             bubbles: true,
@@ -270,15 +270,12 @@
         return event;
     };
 
-    // Auto-initialize
+    // Auto-initialize all forms
     document.addEventListener('DOMContentLoaded', function () {
-        var forms = document.querySelectorAll('form[data-formit-ajax-token]');
+        var forms = document.querySelectorAll('form');
         for (var i = 0; i < forms.length; i++) {
-            new FormIt(forms[i]);
+            new FormItForm(forms[i]);
         }
     });
-
-    // Expose globally
-    window.FormIt = FormIt;
 
 })(window, document);

@@ -159,8 +159,29 @@ class Request
             if (!empty($frontendJs)) {
                 $assetsUrl = $this->formit->config['assets_url'];
                 $this->modx->regClientScript($assetsUrl . $frontendJs);
-                $this->modx->regClientScript('<script>FormIt.defaults.actionUrl='
-                    . json_encode($assetsUrl . 'action.php') . ';</script>', true);
+
+                $jsConfig = ['actionUrl' => $assetsUrl . 'action.php'];
+
+                /* add reCAPTCHA v3 config if hook is active and site key is set */
+                if (!empty($this->reCaptcha) && $this->reCaptcha instanceof RecaptchaService) {
+                    $siteKey = $this->reCaptcha->config[RecaptchaService::OPT_SITE_KEY] ?? '';
+                    if (!empty($siteKey)) {
+                        $this->modx->regClientStartupScript(
+                            'https://www.google.com/recaptcha/api.js?render=' . urlencode($siteKey)
+                        );
+                        $jsConfig['recaptchaSiteKey'] = $siteKey;
+                        $jsConfig['recaptchaDefaultAction'] = $this->modx->getOption(
+                            'recaptchaAction',
+                            $this->config,
+                            \Sterc\FormIt::DEFAULT_RECAPTCHA_ACTION
+                        );
+                    }
+                }
+
+                $this->modx->regClientScript(
+                    '<script>Object.assign(FormIt,' . json_encode($jsConfig) . ');</script>',
+                    true
+                );
             }
         }
 
