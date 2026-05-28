@@ -123,7 +123,8 @@
      */
     FormItForm.prototype._injectSubmitter = function () {
         if (!this.submitter || !this.submitter.name) return;
-        if (this.form.querySelector('[name="' + this.submitter.name + '"]')) return;
+        var existing = this.form.querySelector('[name="' + this.submitter.name + '"]');
+        if (existing && existing !== this.submitter) return;
         var hidden = document.createElement('input');
         hidden.type = 'hidden';
         hidden.name = this.submitter.name;
