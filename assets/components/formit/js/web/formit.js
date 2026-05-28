@@ -59,11 +59,11 @@
         var beforeEvent = this._dispatch('formit:beforesubmit', { form: this.form }, true);
         if (beforeEvent.defaultPrevented) return;
 
-        var submitter = e.submitter || this._lastSubmitter || this.form.querySelector('[type="submit"]');
+        this.submitter = e.submitter || this._lastSubmitter || this.form.querySelector('[type="submit"]');
         var formData  = new FormData(this.form);
 
-        if (submitter && submitter.name) {
-            formData.append(submitter.name, submitter.value || '');
+        if (this.submitter && this.submitter.name) {
+            formData.append(this.submitter.name, this.submitter.value || '');
         }
 
         var self = this;
@@ -121,8 +121,19 @@
      * @param {FormData} formData
      * @private
      */
+    FormItForm.prototype._injectSubmitter = function () {
+        if (!this.submitter || !this.submitter.name) return;
+        if (this.form.querySelector('[name="' + this.submitter.name + '"]')) return;
+        var hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = this.submitter.name;
+        hidden.value = this.submitter.value || '';
+        this.form.appendChild(hidden);
+    };
+
     FormItForm.prototype._submit = function (formData) {
         if (!this.ajaxToken) {
+            this._injectSubmitter();
             this.form.submit();
             return;
         }
@@ -160,6 +171,7 @@
             // AJAX failed — fall back to native submit so the request still goes through.
             // reCAPTCHA token is already set in the response field value.
             console.warn('[FormIt] AJAX failed, falling back to native submit:', error);
+            self._injectSubmitter();
             form.submit();
         })
         .finally(function () {
