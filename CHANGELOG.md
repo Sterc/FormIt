@@ -1,5 +1,10 @@
 Changelog for FormIt.
 
+# FormIt 5.2.2
+
+- Fix submit button value not sent on native form submit fallback.
+- Start loading state before reCAPTCHA token request.
+
 # FormIt 5.2.1
 
 - Upgrade reCAPTCHA from v1 to v3.
