@@ -27,8 +27,9 @@ require_once MODX_BASE_PATH . 'index.php';
 $modx->lexicon->load('formit:default');
 header('Content-Type: application/json; charset=UTF-8');
 
-/* Validate ajaxToken */
-$ajaxToken = $_POST['ajaxToken'] ?? '';
+/* Validate ajaxToken (sent as request header, not a form field, so it never
+   leaks into the gathered form values and gets persisted by render hooks) */
+$ajaxToken = $_SERVER['HTTP_X_FORMIT_TOKEN'] ?? '';
 if (!preg_match('/^[a-f0-9]{32}$/', $ajaxToken)) {
     http_response_code(400);
     echo json_encode([

@@ -1,5 +1,9 @@
 Changelog for FormIt.
 
+# FormIt 5.2.4
+
+- Fix saving ajaxToken in POST fields.
+
 # FormIt 5.2.3
 
 - Fix submit button value not sent on native form submit fallback.

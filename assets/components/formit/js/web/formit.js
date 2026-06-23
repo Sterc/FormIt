@@ -139,14 +139,15 @@
             return;
         }
 
-        formData.append('ajaxToken', this.ajaxToken);
-
         var self = this;
         var form = this.form;
 
         fetch(FormIt.actionUrl, {
             method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-FormIt-Token': this.ajaxToken
+            },
             body: formData
         })
         .then(function (response) {
