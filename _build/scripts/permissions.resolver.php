@@ -47,25 +47,26 @@ if ($transport->xpdo) {
                         }
                     }
                 }
-            }
 
-            foreach ($modx->getCollection(modAccessPolicy::class) as $accessPolicy) {
-                $data = $accessPolicy->get('data');
-
-                foreach ($permissions as $permission) {
-                    if (isset($permission['policies'])) {
-                        if (in_array($accessPolicy->get('name'), $permission['policies'], true)) {
-                            $data[$permission['name']] = true;
+                foreach ($modx->getCollection(modAccessPolicy::class, ['template' => $accessTemplate->get('id')]) as $accessPolicy) {
+                    $data = $accessPolicy->get('data');
+    
+                    foreach ($permissions as $permission) {
+                        if (isset($permission['policies'])) {
+                            if (in_array($accessPolicy->get('name'), $permission['policies'], true)) {
+                                $data[$permission['name']] = true;
+                            } else {
+                                $data[$permission['name']] = false;
+                            }
                         } else {
-                            $data[$permission['name']] = false;
+                            $data[$permission['name']] = true;
                         }
-                    } else {
-                        $data[$permission['name']] = true;
                     }
+    
+                    $accessPolicy->set('data', $data);
+    
+                    $accessPolicy->save();
                 }
-
-                $accessPolicy->set('data', $data);
-                $accessPolicy->save();
             }
 
             $success = true;
