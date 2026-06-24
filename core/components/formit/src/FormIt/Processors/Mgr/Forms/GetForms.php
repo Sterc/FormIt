@@ -63,6 +63,7 @@ class GetForms extends GetListProcessor
             'context_key:IN' => $this->getAvailableContexts()
         ]);
 
+        $criteria->select('MIN(id) AS id, form');
         $criteria->groupby('form');
 
         return $criteria;
@@ -75,7 +76,7 @@ class GetForms extends GetListProcessor
      */
     public function prepareRow(xPDOObject $object)
     {
-        return $object->toArray();
+        return $object->toArray('', false, true);
     }
 
     /**
