@@ -1,6 +1,7 @@
 <?php
 namespace Sterc\FormIt\Model;
 
+use Imagick;
 use xPDO\xPDO;
 use MODX\Revolution\modX;
 use MODX\Revolution\modSystemSetting;
@@ -259,6 +260,9 @@ class FormItForm extends \xPDO\Om\xPDOSimpleObject
             return;
         }
 
+        /* Strip Exif data */
+        $this->stripExif($tmp_name);
+
         /* Check filesize */
         $maxFileSize = $this->xpdo->getOption('upload_maxsize', null, 1048576);
         $size        = filesize($tmp_name);
@@ -388,5 +392,104 @@ class FormItForm extends \xPDO\Om\xPDOSimpleObject
         header("Content-Disposition: Attachment; filename=" . $basename);
         echo $output;
         exit();
+    }
+
+    public function remove(array $ancestors= array ())
+    {
+        $this->removeFiles();
+        return parent::remove($ancestors);
+    }
+
+    protected function removeFiles() {
+        $mediasourceId  = $this->xpdo->getOption('formit.attachment.mediasource');
+        $mediasource    = $this->xpdo->getObject(modMediaSource::class, $mediasourceId);
+        if ($mediasource) {
+            $prop = $mediasource->get('properties');
+            $attachPath = $this->xpdo->getOption('formit.attachment.path');
+            if (empty($attachPath) || $attachPath == '/') {
+                $attachPath = $this->xpdo->getOption(
+                        'formit.assets_path',
+                        null,
+                        $this->xpdo->getOption('assets_path', null, MODX_CORE_PATH)
+                    ) . 'components/formit/attachments';
+            } else {
+                $attachPath = rtrim(MODX_BASE_PATH, '/') . '/'
+                    . trim($prop['basePath']['value'], '/') . '/'
+                    . trim($attachPath,'/');
+            }
+            $path = $attachPath . '/' . $this->get('id');
+            if (is_dir($path)) {
+                $files = glob($path . '/*');
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+                rmdir($path);
+            }
+        }
+    }
+
+    private function stripExif($tmp_name): void
+    {
+        // check if the file is an image
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if (false === $finfo) {
+            return;
+        }
+        $mime = finfo_file($finfo, $tmp_name);
+        finfo_close($finfo);
+        if (strpos($mime, 'image/') !== 0) {
+            return;
+        }
+        // try Imagick first
+
+        if (class_exists('Imagick')) {
+            try {
+                $image = new \Imagick($tmp_name);
+                $image->stripImage();
+                $image->writeImage($tmp_name);
+                $image->clear();
+            } catch (\Exception $e) {
+                $this->modx->log(\xPDO::LOG_LEVEL_ERROR, 'Imagick error: ' . $e->getMessage());
+            }
+        } elseif (function_exists('exif_imagetype')) {
+            $type = exif_imagetype($tmp_name);
+            $version = phpversion();
+            $image = null;
+            // try GD method
+            if (($type == IMAGETYPE_JPEG || $type == IMAGETYPE_JPEG2000) && function_exists('imagecreatefromjpeg')) {
+                $image = imagecreatefromjpeg($tmp_name);
+                if (!$image) return;
+                imagejpeg($image, $tmp_name, 100);
+            } elseif ($type == IMAGETYPE_PNG && function_exists('imagecreatefrompng')) {
+                $image = imagecreatefrompng($tmp_name);
+                if (!$image) return;
+                imagepng($image, $tmp_name, 9);
+            } elseif ($type == IMAGETYPE_GIF && function_exists('imagecreatefromgif')) {
+                $image = imagecreatefromgif($tmp_name);
+                if (!$image) return;
+                imagegif($image, $tmp_name);
+            } elseif ($type == IMAGETYPE_BMP && function_exists('imagecreatefrombmp')) {
+                $image = imagecreatefrombmp($tmp_name);
+                if (!$image) return;
+                imagebmp($image, $tmp_name);
+            } elseif ($type == IMAGETYPE_WEBP && function_exists('imagecreatefromwebp')) {
+                $image = imagecreatefromwebp($tmp_name);
+                if (!$image) return;
+                imagewebp($image, $tmp_name, 100);
+            } elseif (
+                version_compare($version, '8.1.0', 'ge')
+                && $type == 19
+                && function_exists('imagecreatefromavif')
+                && function_exists('imageavif')) {
+                $image = imagecreatefromavif($tmp_name);
+                if (!$image) return;
+                imageavif($image, $tmp_name, 100);
+            }
+            if ($image) {
+                imagedestroy($image);
+            }
+        }
     }
 }

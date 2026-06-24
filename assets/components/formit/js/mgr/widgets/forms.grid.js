@@ -374,18 +374,27 @@ FormIt.window.ViewForm = function(config) {
             anchor      : '100%'
         }, {
             html        : '<hr />'
-        }, this.getValues(config.record.values)]
+        }, this.getValues(config)],
     });
 
     FormIt.window.ViewForm.superclass.constructor.call(this, config);
 };
 
 Ext.extend(FormIt.window.ViewForm, MODx.Window, {
-    getValues: function(values) {
+    getValues: function(config) {
+        var values = config.record.values;
         var output = [];
-
         for (var key in values) {
-            if (values[key].length >= FormIt.config['max_chars']) {
+            if (values[key].includes('formid='+config.record.id)) {
+                output.push({
+                    xtype       : 'box',
+                    fieldLabel  : key,
+                    name        : 'date',
+                    anchor      : '100%',
+                    html       : values[key],
+                });
+
+            } else if (values[key].length >= FormIt.config['max_chars']) {
                 output.push({
                     xtype       : 'textarea',
                     fieldLabel  : key,

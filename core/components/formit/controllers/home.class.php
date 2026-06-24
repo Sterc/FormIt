@@ -10,6 +10,17 @@ require_once dirname(__DIR__) . '/index.class.php';
 
 class FormItHomeManagerController extends FormItBaseManagerController
 {
+    public function initialize()
+    {
+        if (isset($_GET['formid']) && isset($_GET['file'])) {
+            $form = $this->modx->getObject(\Sterc\FormIt\Model\FormItForm::class, $_GET['formid']);
+            if ($form) {
+                $form->downloadFile($_GET['file']);
+                exit;
+            }
+        }
+        return parent::initialize();
+    }
     /**
      * @access public.
      */
