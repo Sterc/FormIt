@@ -76,9 +76,24 @@ class Autoresponder
     public function process($fields = [])
     {
         $tpl = $this->modx->getOption('fiarTpl', $this->formit->config, 'fiDefaultFiarTpl', true);
-        $mailFrom = $this->modx->getOption('fiarFrom', $this->formit->config, $this->modx->getOption('emailsender'));
-        $mailFromName = $this->modx->getOption('fiarFromName', $this->formit->config, $this->modx->getOption('site_name'));
-        $mailSender = $this->modx->getOption('fiarSender', $this->formit->config, $this->modx->getOption('emailsender'));
+        $mailFrom = $this->modx->getOption(
+            'fiarFrom',
+            $this->formit->config,
+            $this->modx->getOption('emailsender'),
+            true
+        );
+        $mailFromName = $this->modx->getOption(
+            'fiarFromName',
+            $this->formit->config,
+            $this->modx->getOption('site_name'),
+            true
+        );
+        $mailSender = $this->modx->getOption(
+            'fiarSender',
+            $this->formit->config,
+            $this->modx->getOption('emailsender'),
+            true
+        );
         $mailSubject = $this->modx->getOption('fiarSubject', $this->formit->config, '[[++site_name]] Auto-Responder');
         $mailSubject = str_replace(
             array('[[++site_name]]', '[[++emailsender]]'),
