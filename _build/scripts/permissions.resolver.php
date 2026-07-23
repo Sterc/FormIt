@@ -1,5 +1,6 @@
 <?php
 use xPDO\Transport\xPDOTransport;
+use MODX\Revolution\modAccessPolicy;
 use MODX\Revolution\modAccessPolicyTemplate;
 use MODX\Revolution\modAccessPermission;
 
@@ -25,7 +26,10 @@ if ($transport->xpdo) {
         case xPDOTransport::ACTION_UPGRADE:
             $modx =& $transport->xpdo;
 
+            $templateNamesById = [];
             foreach ($modx->getCollection(modAccessPolicyTemplate::class) as $accessTemplate) {
+                $templateNamesById[$accessTemplate->get('id')] = $accessTemplate->get('name');
+
                 foreach ($permissions as $permission) {
                     if (!isset($permission['templates']) || in_array($accessTemplate->get('name'), $permission['templates'])) {
                         $accessPermission = $modx->getObject(modAccessPermission::class, [
@@ -51,14 +55,16 @@ if ($transport->xpdo) {
 
             foreach ($modx->getCollection(modAccessPolicy::class) as $accessPolicy) {
                 $data = $accessPolicy->get('data');
+                $templateName = $templateNamesById[$accessPolicy->get('template')] ?? null;
 
                 foreach ($permissions as $permission) {
+                    /* skip policies whose template never got this permission bit added above */
+                    if (isset($permission['templates']) && !in_array($templateName, $permission['templates'], true)) {
+                        continue;
+                    }
+
                     if (isset($permission['policies'])) {
-                        if (in_array($accessPolicy->get('name'), $permission['policies'], true)) {
-                            $data[$permission['name']] = true;
-                        } else {
-                            $data[$permission['name']] = false;
-                        }
+                        $data[$permission['name']] = in_array($accessPolicy->get('name'), $permission['policies'], true);
                     } else {
                         $data[$permission['name']] = true;
                     }
