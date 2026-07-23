@@ -1,5 +1,10 @@
 Changelog for FormIt.
 
+# FormIt 5.2.5
+
+- Fix HTTP 500 on PHP 8.4 when AJAX config hits session/cache (#308).
+- Store only scalar snippet properties in session/cache.
+
 # FormIt 5.2.4
 
 - Fix saving ajaxToken in POST fields.
