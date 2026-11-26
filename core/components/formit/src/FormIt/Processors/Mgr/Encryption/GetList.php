@@ -57,6 +57,7 @@ class GetList extends GetListProcessor
             ]);
         }
 
+        $criteria->select('MIN(id) AS id, form, context_key');
         $criteria->groupby('form');
         $criteria->groupby('context_key');
 
@@ -70,7 +71,7 @@ class GetList extends GetListProcessor
      */
     public function prepareRow(xPDOObject $object)
     {
-        return array_merge($object->toArray(), [
+        return array_merge($object->toArray('', false, true), [
             'encrypted'     => $this->modx->getCount($this->classKey, [
                 'form'          => $object->get('form'),
                 'context_key'   => $object->get('context_key'),
@@ -99,4 +100,3 @@ class GetList extends GetListProcessor
         return $contexts;
     }
 }
-
