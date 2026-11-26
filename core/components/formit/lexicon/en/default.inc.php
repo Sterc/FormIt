@@ -15,6 +15,8 @@ $_lang['setting_formit.upload_blocked_extensions']              = 'Blocked uploa
 $_lang['setting_formit.attachment.lifeline']                    = 'Temporary attachment lifetime';
 $_lang['setting_formit.attachment.lifeline_desc']               = 'Number of seconds temporary uploaded files are kept before FormIt removes them. Default: 86400 (1 day).';
 $_lang['setting_formit.upload_blocked_extensions_desc']         = 'Comma-separated list of file extensions that FormIt will always block for uploads, even if MODX upload settings allow them.';
+$_lang['setting_formit.export_csv_delimiter']                   = 'CSV export delimiter';
+$_lang['setting_formit.export_csv_delimiter_desc']              = 'The character used to separate the columns when exporting forms to CSV. This is also the preselected value in the export window. Default: ";".';
 
 $_lang['formit.form']                                           = 'Form';
 $_lang['formit.forms']                                          = 'Forms';

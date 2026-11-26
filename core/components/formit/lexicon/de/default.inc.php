@@ -11,6 +11,8 @@ $_lang['formit.desc']                                           = 'Per Formular 
 
 $_lang['area_formit']                                           = 'FormIt';
 $_lang['area_formit_recaptcha']                                 = 'FormIt reCaptcha';
+$_lang['setting_formit.export_csv_delimiter']                   = 'Trennzeichen für CSV-Export';
+$_lang['setting_formit.export_csv_delimiter_desc']              = 'Das Zeichen, das beim CSV-Export die Spalten voneinander trennt. Dies ist auch der vorausgewählte Wert im Export-Fenster. Standard: ";".';
 
 $_lang['formit.form']                                           = 'Formular';
 $_lang['formit.forms']                                          = 'Formulare';
