@@ -20,7 +20,7 @@
  * @package formit
  */
 
-require_once dirname(dirname(__DIR__)) . '/src/FormIt/Request.php';
+require_once dirname(__DIR__, 2) . '/src/FormIt/Request.php';
 
 /**
  * Handles all pre and POST requests for FormIt and abstracts hooks and validation processing.

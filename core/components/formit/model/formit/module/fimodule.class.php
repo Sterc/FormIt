@@ -26,7 +26,7 @@
  * @subpackage modules
  */
 
-require_once dirname(dirname(dirname(__DIR__))) . '/src/FormIt/Module/Module.php';
+require_once dirname(__DIR__, 3) . '/src/FormIt/Module/Module.php';
 
 abstract class fiModule extends Sterc\FormIt\Module\Module
 {

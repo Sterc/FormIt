@@ -4,19 +4,17 @@
  *
  * @package formit
  */
-require_once dirname(dirname(dirname(dirname(__FILE__)))).'/config.core.php';
-require_once MODX_CORE_PATH.'config/'.MODX_CONFIG_KEY.'.inc.php';
-require_once MODX_CONNECTORS_PATH.'index.php';
+require_once dirname(__DIR__, 3) . '/config.core.php';
+require_once MODX_CORE_PATH.'config/' . MODX_CONFIG_KEY . '.inc.php';
+require_once MODX_CONNECTORS_PATH . 'index.php';
 
-$corePath = $modx->getOption('formit.core_path',null,$modx->getOption('core_path').'components/formit/');
-require_once $corePath.'model/formit/formit.class.php';
-$modx->formit = new FormIt($modx);
+$modx->formit = $modx->services->get('formit');
 
 $modx->lexicon->load('formit:default');
 
 /* handle request */
-$path = $modx->getOption('processorsPath',$modx->formit->config,$corePath.'processors/');
-$modx->request->handleRequest(array(
+$path = $modx->getOption('processorsPath', $modx->formit->config, MODX_CORE_PATH . '/components/formit/src/FormIt/Processors/');
+$modx->request->handleRequest([
     'processors_path' => $path,
-    'location' => '',
-));
+    'location'        => ''
+]);

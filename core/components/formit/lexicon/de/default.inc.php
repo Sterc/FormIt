@@ -103,6 +103,9 @@ $_lang['formit.all_group_text']                                 = 'Alle Länder'
 $_lang['formit.storeAttachment_mediasource_error']              = 'Cant find MediaSource! Mediasource id is: ';
 $_lang['formit.storeAttachment_access_error']                   = 'Directory is not writable! Check the permissions for: ';
 
+$_lang['formit.err_config_ns']                                  = 'Keine Formularkonfiguration angegeben.';
+$_lang['formit.err_config_expired']                             = 'Formularkonfiguration abgelaufen. Bitte laden Sie die Seite neu.';
+
 $_lang['formit.migrate']                                        = 'Verschlüsselte Daten aus versendeten Formularen migrieren';
 $_lang['formit.migrate_desc']                                   = 'Beim Upgrade auf FormIt 3.0 wird auch die Verschlüsselungsmethode geändert, die für die Verschlüsselung der Daten aus versendeten Formularen verwendet wird. FormIt 2.x verwendete mcrypt für die Ver- und Entschlüsselung, Version 3.0 dagegen verwendet die OpenSSL-Methoden. Damit dies korrekt funktioniert, müssen die bereits verschlüsselten Formulardaten von mcrypt zu OpenSSL migriert werden.';
 $_lang['formit.migrate_alert']                                  = 'FormIt wurde upgedatet, aber Ihre verschlüsselten Formulardaten müssen migriert werden. Klicken Sie hier, um die Migration zu starten.';

@@ -69,7 +69,7 @@ FormIt.grid.Encryptions = function(config) {
         columns     : columns,
         url         : FormIt.config.connector_url,
         baseParams  : {
-            action      : 'mgr/encryption/getlist'
+            action      : 'Sterc\\FormIt\\Processors\\Mgr\\Encryption\\GetList'
         },
         fields      : ['form', 'encrypted', 'decrypted'],
         paging      : true,
@@ -138,7 +138,7 @@ Ext.extend(FormIt.grid.Encryptions, MODx.grid.Grid, {
             text        : _('formit.form_encrypt_confirm'),
             url         : FormIt.config.connector_url,
             params      : {
-                action      : 'mgr/encryption/encrypt',
+                action      : 'Sterc\\FormIt\\Processors\\Mgr\\Encryption\\Encrypt',
                 form        : this.menu.record.form
             },
             listeners   : {
@@ -155,7 +155,7 @@ Ext.extend(FormIt.grid.Encryptions, MODx.grid.Grid, {
             text        : _('formit.form_decrypt_confirm'),
             url         : FormIt.config.connector_url,
             params      : {
-                action      : 'mgr/encryption/decrypt',
+                action      : 'Sterc\\FormIt\\Processors\\Mgr\\Encryption\\Decrypt',
                 form        : this.menu.record.form
             },
             listeners   : {

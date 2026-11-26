@@ -2,6 +2,8 @@
 
 namespace Sterc\FormIt\Hook;
 
+use MODX\Revolution\modResource;
+
 class Redirect
 {
     /**
@@ -75,7 +77,7 @@ class Redirect
             }
         }
         $contextKey = $this->modx->context->get('key');
-        $resource = $this->modx->getObject('modResource', $this->formit->config['redirectTo']);
+        $resource = $this->modx->getObject(modResource::class, $this->formit->config['redirectTo']);
         if ($resource) {
             $contextKey = $resource->get('context_key');
         }

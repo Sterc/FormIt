@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model package="formit" baseClass="xPDOObject" platform="mysql" defaultEngine="InnoDB" phpdoc-package="formit">
-    <object class="FormItForm" table="formit_forms" extends="xPDOSimpleObject">
+<model package="Sterc\FormIt\Model\" baseClass="xPDO\Om\xPDOSimpleObject" platform="mysql" defaultEngine="InnoDB" phpdoc-package="formit">
+    <object class="FormItForm" table="formit_forms">
         <field key="form" dbtype="varchar" precision="255" phptype="string" null="false" default=""/>
         <field key="context_key" dbtype="varchar" precision="100" phptype="string" null="false" default=""/>
         <field key="values" dbtype="text" phptype="string" null="false" default=""/>

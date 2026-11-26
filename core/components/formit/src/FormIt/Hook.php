@@ -2,6 +2,7 @@
 
 namespace Sterc\FormIt;
 
+use MODX\Revolution\modSnippet;
 use Sterc\FormIt;
 use Sterc\FormIt\Service\Recaptcha;
 
@@ -138,7 +139,7 @@ class Hook
         if (class_exists($className) && !in_array($hookName, $reserved)) {
             $class = new $className($this, $this->config);
             $success = $class->process($fields);
-        } elseif ($snippet = $this->modx->getObject('modSnippet', array('name' => $hookName))) {
+        } elseif ($snippet = $this->modx->getObject(modSnippet::class, array('name' => $hookName))) {
             /* custom snippet hook */
             $properties = array_merge($this->formit->config, $customProperties);
             $properties['formit'] =& $this->formit;

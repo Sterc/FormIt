@@ -16,10 +16,8 @@ class FormItHomeManagerController extends FormItBaseManagerController
     public function loadCustomCssJs()
     {
         $this->addJavascript($this->modx->formit->config['js_url'] . 'mgr/widgets/home.panel.js');
-
         $this->addJavascript($this->modx->formit->config['js_url'] . 'mgr/widgets/forms.grid.js');
         $this->addJavascript($this->modx->formit->config['js_url'] . 'mgr/widgets/encryption.grid.js');
-
         $this->addLastJavascript($this->modx->formit->config['js_url'] . 'mgr/sections/home.js');
     }
 

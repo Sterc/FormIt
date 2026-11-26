@@ -20,7 +20,7 @@
  * @package formit
  */
 
-require_once dirname(dirname(__DIR__)) . '/src/FormIt/Hook.php';
+require_once dirname(__DIR__, 2) . '/src/FormIt/Hook.php';
 
 /**
  * Base Hooks handling class. Hooks can be used to run scripts prior to loading the form, or after a form has been

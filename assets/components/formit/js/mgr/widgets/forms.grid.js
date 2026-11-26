@@ -138,7 +138,7 @@ FormIt.grid.Forms = function(config) {
         id          : 'formit-grid-forms',
         url         : FormIt.config.connector_url,
         baseParams  : {
-            action      : 'mgr/forms/getlist',
+            action      : 'Sterc\\FormIt\\Processors\\Mgr\\Forms\\GetList',
             query       : decodeURIComponent(MODx.request.form || '')
         },
         fields      :['id','form','values', 'ip', 'date', 'encrypted'],
@@ -223,7 +223,7 @@ Ext.extend(FormIt.grid.Forms, MODx.grid.Grid, {
             text    : _('formit.form_remove_confirm'),
             url     : this.config.url,
             params  : {
-                action  : 'mgr/forms/remove',
+                action  : 'Sterc\\FormIt\\Processors\\Mgr\\Forms\\Remove',
                 id      : this.menu.record.id
             },
             listeners   : {
@@ -249,7 +249,7 @@ Ext.extend(FormIt.grid.Forms, MODx.grid.Grid, {
             text    : _('formit.forms_remove_confirm'),
             url     : this.config.url,
             params  : {
-                action  : 'mgr/forms/removeselected',
+                action  : 'Sterc\\FormIt\\Processors\\Mgr\\Forms\\RemoveSelected',
                 ids     : this.getSelectedAsList()
             },
             listeners   : {
@@ -423,7 +423,7 @@ FormIt.window.CleanForms = function(config) {
         cls         : 'x-window-formit',
         url         : FormIt.config.connector_url,
         baseParams  : {
-            action      : 'mgr/forms/clean'
+            action      : 'Sterc\\FormIt\\Processors\\Mgr\\Forms\\Clean'
         },
         items       : [{
             html        : '<p>' + _('formit.forms_clean_desc') + '</p>',
@@ -467,7 +467,7 @@ FormIt.window.ExportForms = function(config) {
         title       : _('formit.forms_export'),
         url         : FormIt.config.connector_url,
         baseParams  : {
-            action      : 'mgr/forms/export'
+            action      : 'Sterc\\FormIt\\Processors\\Mgr\\Forms\\Export'
         },
         fields      : [{
             xtype       : 'formit-combo-forms',
@@ -475,7 +475,7 @@ FormIt.window.ExportForms = function(config) {
             description : MODx.expandHelp ? '' : _('formit.label_export_form_desc'),
             name        : 'form',
             anchor      : '100%',
-            width       : '100%', 
+            width       : '100%',
             emptyText   : _('formit.filter_form'),
             allowBlank  : true
         }, {
@@ -535,7 +535,7 @@ FormIt.combo.Forms = function(config) {
     Ext.applyIf(config, {
         url             : FormIt.config.connector_url,
         baseParams      : {
-            action : 'mgr/forms/getforms'
+            action : 'Sterc\\FormIt\\Processors\\Mgr\\Forms\\GetForms'
         },
         fields          : ['form'],
         hiddenName      : 'form',

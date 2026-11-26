@@ -2,6 +2,7 @@
 
 namespace Sterc\FormIt;
 
+use MODX\Revolution\modSnippet;
 use Sterc\FormIt;
 
 class Validator extends FormIt
@@ -261,7 +262,7 @@ class Validator extends FormIt
         } else if (in_array($type,$customValidators)) {
             /* attempt to grab custom validator */
             /** @var modSnippet|null $snippet */
-            $snippet = $this->modx->getObject('modSnippet',array('name' => $type));
+            $snippet = $this->modx->getObject(modSnippet::class,array('name' => $type));
             if ($snippet) {
                 /* custom snippet validator */
                 $props = array_merge($this->formit->config,array(

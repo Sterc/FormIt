@@ -2,6 +2,9 @@
 
 namespace Sterc\FormIt\Hook;
 
+use MODX\Revolution\Mail\modMail;
+use MODX\Revolution\Mail\modPHPMailer;
+
 class Autoresponder
 {
     /**
@@ -128,20 +131,20 @@ class Autoresponder
         $message = $this->formit->getChunk($tpl, $fields);
         $message = $this->hook->_process($message, $this->config);
 
-        $this->modx->getService('mail', 'mail.modPHPMailer');
-        $this->modx->mail->set(\modMail::MAIL_BODY, $message);
-        $this->modx->mail->set(\modMail::MAIL_FROM, $this->hook->_process($mailFrom, $placeholders));
-        $this->modx->mail->set(\modMail::MAIL_FROM_NAME, $this->hook->_process($mailFromName, $placeholders));
-        $this->modx->mail->set(\modMail::MAIL_SENDER, $this->hook->_process($mailSender, $placeholders));
-        $this->modx->mail->set(\modMail::MAIL_SUBJECT, $this->hook->_process($mailSubject, $placeholders));
-        $this->modx->mail->address('to', $mailTo);
-        $this->modx->mail->setHTML($isHtml);
+        $mail = $this->modx->getService('mail', modPHPMailer::class);
+        $mail->set(modMail::MAIL_BODY, $message);
+        $mail->set(modMail::MAIL_FROM, $this->hook->_process($mailFrom, $placeholders));
+        $mail->set(modMail::MAIL_FROM_NAME, $this->hook->_process($mailFromName, $placeholders));
+        $mail->set(modMail::MAIL_SENDER, $this->hook->_process($mailSender, $placeholders));
+        $mail->set(modMail::MAIL_SUBJECT, $this->hook->_process($mailSubject, $placeholders));
+        $mail->address('to', $mailTo);
+        $mail->setHTML($isHtml);
 
         /* add attachments */
         if ($fiarFiles) {
             $fiarFiles = explode(',', $fiarFiles);
             foreach ($fiarFiles as $file) {
-                $this->modx->mail->mailer->AddAttachment($file);
+                $mail->mailer->AddAttachment($file);
             }
         }
 
@@ -151,7 +154,7 @@ class Autoresponder
         $emailReplyToName = $this->modx->getOption('fiarReplyToName', $this->formit->config, $mailFromName);
         $emailReplyToName = $this->hook->_process($emailReplyToName, $fields);
         if (!empty($emailReplyTo)) {
-            $this->modx->mail->address('reply-to', $emailReplyTo, $emailReplyToName);
+            $mail->address('reply-to', $emailReplyTo, $emailReplyToName);
         }
 
         /* cc */
@@ -168,7 +171,7 @@ class Autoresponder
                 }
                 $emailCC[$i] = $this->hook->_process($emailCC[$i], $fields);
                 if (!empty($emailCC[$i])) {
-                    $this->modx->mail->address('cc', $emailCC[$i], $etn);
+                    $mail->address('cc', $emailCC[$i], $etn);
                 }
             }
         }
@@ -187,22 +190,22 @@ class Autoresponder
                 }
                 $emailBCC[$i] = $this->hook->_process($emailBCC[$i], $fields);
                 if (!empty($emailBCC[$i])) {
-                    $this->modx->mail->address('bcc', $emailBCC[$i], $etn);
+                    $mail->address('bcc', $emailBCC[$i], $etn);
                 }
             }
         }
 
         if (!$this->formit->inTestMode) {
-            if (!$this->modx->mail->send()) {
+            if (!$mail->send()) {
                 $this->modx->log(
                     \modX::LOG_LEVEL_ERROR,
                     '[FormIt] An error occurred while trying to send
-                      the auto-responder email: '.$this->modx->mail->mailer->ErrorInfo
+                      the auto-responder email: '.$mail->mailer->ErrorInfo
                 );
                 return false;
             }
         }
-        $this->modx->mail->reset();
+        $mail->reset();
         return true;
     }
 }

@@ -19,7 +19,7 @@
  *
  * @package formit
  */
-require_once dirname(dirname(dirname(__DIR__))) . '/src/FormIt/Module/CountryOptions.php';
+require_once dirname(__DIR__, 3) . '/src/FormIt/Module/CountryOptions.php';
 /**
  * Loads a option list of countries
  *

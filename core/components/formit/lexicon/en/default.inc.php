@@ -11,6 +11,8 @@ $_lang['formit.desc']                                           = 'View all subm
 
 $_lang['area_formit']                                           = 'FormIt';
 $_lang['area_formit_recaptcha']                                 = 'FormIt reCAPTCHA';
+$_lang['setting_formit.upload_blocked_extensions']              = 'Blocked upload file extensions';
+$_lang['setting_formit.upload_blocked_extensions_desc']         = 'Comma-separated list of file extensions that FormIt will always block for uploads, even if MODX upload settings allow them.';
 
 $_lang['formit.form']                                           = 'Form';
 $_lang['formit.forms']                                          = 'Forms';
@@ -102,6 +104,9 @@ $_lang['formit.not_regexp']                                     = 'Your value di
 $_lang['formit.all_group_text']                                 = 'All Countries';
 $_lang['formit.storeAttachment_mediasource_error']              = 'Cant find Media Source! Media Source ID is: ';
 $_lang['formit.storeAttachment_access_error']                   = 'Directory is not writable! Check the permissions for: ';
+
+$_lang['formit.err_config_ns']                                  = 'No form configuration specified.';
+$_lang['formit.err_config_expired']                             = 'Form configuration expired. Please reload the page.';
 
 $_lang['formit.migrate']                                        = 'Migrate encrypted form submissions';
 $_lang['formit.migrate_desc']                                   = 'Upgrading to FormIt 3.0 will also update the encryption method used for encrypting submitted form data. FormIt 2.x used mcrypt for encrypting and decrypting, but 3.0 uses the openssl methods. For this to work correctly the currently encrypted forms need to be migrated from mcrypt to openssl.';

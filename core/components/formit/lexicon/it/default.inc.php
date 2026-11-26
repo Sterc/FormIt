@@ -103,6 +103,9 @@ $_lang['formit.all_group_text']                                 = 'All Countries
 $_lang['formit.storeAttachment_mediasource_error']              = 'Cant find MediaSource! Mediasource id is: ';
 $_lang['formit.storeAttachment_access_error']                   = 'Directory is not writable! Check the permissions for: ';
 
+$_lang['formit.err_config_ns']                                  = 'Nessuna configurazione del modulo specificata.';
+$_lang['formit.err_config_expired']                             = 'Configurazione del modulo scaduta. Si prega di ricaricare la pagina.';
+
 $_lang['formit.migrate']                                        = 'Migrate encrypted form submissions';
 $_lang['formit.migrate_desc']                                   = 'Upgrading to FormIt 3.0 will also update the encryption method used for encrypting submitted form data. FormIt 2.x used mcrypt for encrypting and decrypting, but 3.0 uses the openssl methods. For this to work correctly the currently encrypted forms need to be migrated from mcrypt to openssl.';
 $_lang['formit.migrate_alert']                                  = 'FormIt was updated, but your encrypted form submissions need to be migrated. Click here to start the migration.';

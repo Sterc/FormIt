@@ -100,8 +100,7 @@ class Dictionary
     public function saveFile($key, $name, $tmp_name, $error)
     {
         $info = pathinfo($name);
-        $ext = $info['extension'];
-        $ext = strtolower($ext);
+        $ext = strtolower(trim($info['extension'] ?? ''));
 
         if ($error !== 0) {
             return;
@@ -113,27 +112,28 @@ class Dictionary
             explode(',', $this->modx->getOption('upload_flash')),
             explode(',', $this->modx->getOption('upload_files', null, ''))
         );
-        $allowedFileTypes = array_unique($allowedFileTypes);
-
-        /* Make sure that dangerous file types are not allowed */
-        unset(
-            $allowedFileTypes['php'],
-            $allowedFileTypes['php4'],
-            $allowedFileTypes['php5'],
-            $allowedFileTypes['htm'],
-            $allowedFileTypes['html'],
-            $allowedFileTypes['phtml'],
-            $allowedFileTypes['js'],
-            $allowedFileTypes['bin'],
-            $allowedFileTypes['csh'],
-            $allowedFileTypes['out'],
-            $allowedFileTypes['run'],
-            $allowedFileTypes['sh'],
-            $allowedFileTypes['htaccess']
+        $allowedFileTypes = array_filter(
+            array_unique(
+                array_map('strtolower', array_map('trim', $allowedFileTypes))
+            )
         );
 
+        /* Make sure that dangerous file types are not allowed */
+        $defaultBlockedExtensions = 'php,php4,php5,php7,php8,phar,htm,html,phtml,shtml,js,mjs,bin,csh,out,run,sh,htaccess,svg,svgz';
+        $blockedExtensions = $this->modx->getOption(
+            'blockedFileExtensions',
+            $this->config,
+            $this->modx->getOption('formit.upload_blocked_extensions', null, $defaultBlockedExtensions)
+        );
+        $blockedExtensions = array_filter(
+            array_unique(
+                array_map('strtolower', array_map('trim', explode(',', (string)$blockedExtensions)))
+            )
+        );
+        $allowedFileTypes = array_diff($allowedFileTypes, $blockedExtensions);
+
         /* Check file extension */
-        if (empty($ext) || !in_array($ext, $allowedFileTypes)) {
+        if ($ext === '' || !in_array($ext, $allowedFileTypes, true)) {
             return;
         }
 

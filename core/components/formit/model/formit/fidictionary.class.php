@@ -20,7 +20,7 @@
  * @package formit
  */
 
-require_once dirname(dirname(__DIR__)) . '/src/FormIt/Dictionary.php';
+require_once dirname(__DIR__, 2) . '/src/FormIt/Dictionary.php';
 
 /**
  * Abstracts storage of values of posted fields and fields set by hooks.

@@ -2,8 +2,8 @@
 
 namespace Sterc\FormIt;
 
-use Sterc\FormIt\Service\Recaptcha;
 use Sterc\FormIt\Service\RecaptchaService;
+use Sterc\FormIt\Model\FormItForm;
 
 /**
  * Class Request
@@ -57,18 +57,18 @@ class Request
      */
     function __construct($formit, $config = [])
     {
-        $this->formit = $formit;
-        $this->modx = $formit->modx;
-        $this->config = array_merge([
-            'clearFieldsOnSuccess' => true,
-            'hooks' => '',
-            'placeholderPrefix' => 'fi.',
-            'preHooks' => '',
-            'store' => false,
-            'submitVar' => '',
-            'validate' => '',
-            'validateSeparator' => ',',
-            'renderHooks' => ''
+        $this->formit   = $formit;
+        $this->modx     = $formit->modx;
+        $this->config   = array_merge([
+            'clearFieldsOnSuccess'  => true,
+            'hooks'                 => '',
+            'placeholderPrefix'     => 'fi.',
+            'preHooks'              => '',
+            'store'                 => false,
+            'submitVar'             => '',
+            'validate'              => '',
+            'validateSeparator'     => ',',
+            'renderHooks'           => ''
         ], $config);
     }
 
@@ -82,7 +82,7 @@ class Request
         /* if using recaptcha, load recaptcha html */
         if ($this->formit->hasHook('recaptcha')) {
             $this->loadReCaptcha($this->config);
-            if (!empty($this->reCaptcha) && $this->reCaptcha instanceof Recaptcha) {
+            if (!empty($this->reCaptcha) && $this->reCaptcha instanceof RecaptchaService) {
                 $this->reCaptcha->render($this->config);
             } else {
                 $this->modx->log(\modX::LOG_LEVEL_ERROR,'[FormIt] '.$this->modx->lexicon('formit.recaptcha_err_load'));
@@ -91,9 +91,6 @@ class Request
 
         /* if using math hook, load default placeholders */
         if ($this->formit->hasHook('math')) {
-            $operators = array('+', '-');
-            $operator = rand(0, 1);
-            
             if (!$this->hasSubmission()) {
                 $mathMaxRange = $this->modx->getOption('mathMaxRange', $this->config, 100);
                 $mathMinRange = $this->modx->getOption('mathMinRange', $this->config, 10);
@@ -112,22 +109,26 @@ class Request
                     $op1 = $t;
                 }
 
+                /* swap so we always get positive #s */
+                $operators = array('+', '-');
+                $operator = $operators[rand(0, 1)];
+
                 /* Store in session so math fields are not required for math hook */
                 $_SESSION['formitMath'] = array(
                     'op1' => $op1,
                     'op2' => $op2,
-                    'operator' => $operators[$operator]
+                    'operator' => $operator
                 );
             } else {
                 $op1 = $_SESSION['formitMath']['op1'];
                 $op2 = $_SESSION['formitMath']['op2'];
-                $operators[$operator] = $_SESSION['formitMath']['operator'];
+                $operator = $_SESSION['formitMath']['operator'];
             }
 
             $this->modx->setPlaceholders(array(
                 $this->modx->getOption('mathOp1Field', $this->config, 'op1') => $op1,
                 $this->modx->getOption('mathOp2Field', $this->config, 'op2') => $op2,
-                $this->modx->getOption('mathOperatorField', $this->config, 'operator') => $operators[$operator],
+                $this->modx->getOption('mathOperatorField', $this->config, 'operator') => $operator,
             ), $this->config['placeholderPrefix']);
 
         }
@@ -135,8 +136,54 @@ class Request
         if ($this->modx->getOption('storeAttachments', $this->config, false) &&
             ($this->formit->hasHook('FormItSaveForm') || $this->formit->hasHook('saveform'))
         ) {
-            $newForm = $this->modx->newObject('FormItForm');
+            $newForm = $this->modx->newObject(FormItForm::class);
             $newForm->validateStoreAttachment($this->config);
+        }
+
+        /* if not a form submission, store config for AJAX handling */
+        if (!$this->hasSubmission()) {
+            $properties = $this->config;
+            $properties['pageId'] = $this->modx->resource ? $this->modx->resource->get('id') : null;
+
+            $ajaxToken = bin2hex(random_bytes(16));
+
+            if (session_id() !== '') {
+                $_SESSION['formit'][$ajaxToken] = $properties;
+            }
+            $cacheTtl = (int) $this->modx->getOption('session_gc_maxlifetime', null, 604800);
+            $this->modx->cacheManager->set('formit/props_' . $ajaxToken, $properties, $cacheTtl);
+
+            $this->modx->setPlaceholder($this->config['placeholderPrefix'] . 'ajaxToken', $ajaxToken);
+
+            /* register frontend JS if configured */
+            $frontendJs = $this->modx->getOption('formit.frontend_js', null, '');
+            if (!empty($frontendJs)) {
+                $assetsUrl = $this->formit->config['assets_url'];
+                $this->modx->regClientScript($assetsUrl . $frontendJs);
+
+                $jsConfig = ['actionUrl' => $assetsUrl . 'action.php'];
+
+                /* add reCAPTCHA v3 config if hook is active and site key is set */
+                if (!empty($this->reCaptcha) && $this->reCaptcha instanceof RecaptchaService) {
+                    $siteKey = $this->reCaptcha->config[RecaptchaService::OPT_SITE_KEY] ?? '';
+                    if (!empty($siteKey)) {
+                        $this->modx->regClientStartupScript(
+                            'https://www.google.com/recaptcha/api.js?render=' . urlencode($siteKey)
+                        );
+                        $jsConfig['recaptchaSiteKey'] = $siteKey;
+                        $jsConfig['recaptchaDefaultAction'] = $this->modx->getOption(
+                            'recaptchaAction',
+                            $this->config,
+                            \Sterc\FormIt::DEFAULT_RECAPTCHA_ACTION
+                        );
+                    }
+                }
+
+                $this->modx->regClientScript(
+                    '<script>Object.assign(FormIt,' . json_encode($jsConfig) . ');</script>',
+                    true
+                );
+            }
         }
 
         return $this->runPreHooks();
@@ -149,14 +196,14 @@ class Request
      */
     public function runPreHooks()
     {
-        $fields = array();
+        $fields = [];
 
         $this->formit->loadHooks('pre', $this->config);
 
-        $this->formit->preHooks->loadMultiple($this->config['preHooks'], array(), array(
+        $this->formit->preHooks->loadMultiple($this->config['preHooks'], [], [
             'submitVar' => $this->config['submitVar'],
             'hooks'     => $this->config['preHooks']
-        ));
+        ]);
 
         /* if a prehook sets a field, do so here, but only if POST isnt submitted */
         if (!$this->hasSubmission()) {
@@ -178,8 +225,8 @@ class Request
     {
         $this->formit->loadHooks('render', $this->config);
 
-        $fields = array();
-        $errors = array();
+        $fields = [];
+        $errors = [];
 
         if ($this->dictionary) {
             $fields = $this->dictionary->toArray();
@@ -243,12 +290,7 @@ class Request
     public function loadReCaptcha(array $config = array())
     {
         if (empty($this->reCaptcha)) {
-            if ($this->modx->loadClass('recaptcha.FormItReCaptcha', $this->config['model_path'], true, true)) {
-                $this->reCaptcha = new RecaptchaService($this->formit, $config);
-            } else {
-                $this->modx->log(\modX::LOG_LEVEL_ERROR, '[FormIt] '.$this->modx->lexicon('formit.recaptcha_err_load'));
-                return null;
-            }
+            $this->reCaptcha = new RecaptchaService($this->formit, $config);
         }
 
         return $this->reCaptcha;
@@ -310,7 +352,7 @@ class Request
      */
     public function loadValidator()
     {
-        if ($this->modx->loadClass('formit.fiValidator',$this->formit->config['model_path'],true,true)) {
+        if ($this->modx->loadClass('formit.fiValidator', $this->formit->config['core_path'] . 'model/', true, true)) {
             $this->validator = new Validator($this->formit, $this->config);
         } else {
             $this->modx->log(\modX::LOG_LEVEL_ERROR,'[FormIt] Could not load Validator class.');
@@ -326,7 +368,7 @@ class Request
      */
     public function loadDictionary()
     {
-        if ($this->modx->loadClass('formit.fiDictionary',$this->formit->config['model_path'],true,true)) {
+        if ($this->modx->loadClass('formit.fiDictionary', $this->formit->config['core_path'] . 'model/', true, true)) {
             $this->dictionary = new Dictionary($this->formit,$this->config);
         } else {
             $this->modx->log(\modX::LOG_LEVEL_ERROR,'[FormIt] Could not load Dictionary class.');
@@ -388,7 +430,7 @@ class Request
 
             /* Also do a glob for removing files that are left behind by not-completed form submissions */
             if (function_exists('glob')) {
-                $tmpPath = $this->formit->config['assets_path'].'tmp/';
+                $tmpPath = $this->formit->config['assets_path'] . 'tmp/';
                 foreach (glob($tmpPath.'*') as $file) {
                     if (file_exists($file) && (time() - filemtime($file) >= $tmpFileLifetime)) {
                         unlink($file);
@@ -420,7 +462,7 @@ class Request
     {
         $success = true;
         /* load posthooks */
-        $this->formit->loadHooks('post',$this->config);
+        $this->formit->loadHooks('post', $this->config);
         $this->formit->postHooks->loadMultiple($this->config['hooks'],$this->dictionary->toArray());
 
         /* process form */
