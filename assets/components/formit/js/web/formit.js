@@ -95,7 +95,7 @@
     FormItForm.prototype._resolveRecaptcha = function (formData) {
         var recaptchaResponseField = this.form.querySelector('[name="g-recaptcha-response"]');
 
-        if (!recaptchaResponseField || typeof grecaptcha === 'undefined') {
+        if (!recaptchaResponseField || typeof grecaptcha === 'undefined' || typeof window.hcaptcha === 'object') {
             return Promise.resolve();
         }
 

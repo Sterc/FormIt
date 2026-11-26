@@ -11,31 +11,31 @@ class GetList extends GetListProcessor
 {
     /**
      * @access public.
-     * @var    String.
+     * @var String.
      */
     public $classKey = FormItForm::class;
 
     /**
      * @access public.
-     * @var    Array.
+     * @var Array.
      */
     public $languageTopics = ['formit:default'];
 
     /**
      * @access public.
-     * @var    String.
+     * @var String.
      */
     public $defaultSortField = 'form';
 
     /**
      * @access public.
-     * @var    String.
+     * @var String.
      */
     public $defaultSortDirection = 'ASC';
 
     /**
      * @access public.
-     * @var    String.
+     * @var String.
      */
     public $objectType = 'formit.form';
 
@@ -46,53 +46,43 @@ class GetList extends GetListProcessor
      */
     public function prepareQueryBeforeCount(xPDOQuery $criteria)
     {
-        $criteria->where(
-            [
+        $criteria->where([
             'context_key:IN' => $this->getAvailableContexts(),
-            ]
-        );
+        ]);
 
         $query = $this->getProperty('query');
         if (!empty($query)) {
-            $criteria->where(
-                [
+            $criteria->where([
                 'form:LIKE' => '%' . $query . '%'
-                ]
-            );
+            ]);
         }
 
+        $criteria->select('MIN(id) AS id, form, context_key');
         $criteria->groupby('form');
         $criteria->groupby('context_key');
-        $criteria->groupby('id');
 
         return $criteria;
     }
 
     /**
      * @access public.
-     * @param  xPDOObject $object.
+     * @param xPDOObject $object.
      * @return Array.
      */
     public function prepareRow(xPDOObject $object)
     {
-        return array_merge(
-            $object->toArray(), [
-            'encrypted'     => $this->modx->getCount(
-                $this->classKey, [
+        return array_merge($object->toArray('', false, true), [
+            'encrypted'     => $this->modx->getCount($this->classKey, [
                 'form'          => $object->get('form'),
                 'context_key'   => $object->get('context_key'),
                 'encrypted'     => 1
-                ]
-            ),
-            'decrypted'     => $this->modx->getCount(
-                $this->classKey, [
+            ]),
+            'decrypted'     => $this->modx->getCount($this->classKey, [
                 'form'          => $object->get('form'),
                 'context_key'   => $object->get('context_key'),
                 'encrypted'     => 0
-                ]
-            )
-            ]
-        );
+            ])
+        ]);
     }
 
     /**
@@ -110,4 +100,3 @@ class GetList extends GetListProcessor
         return $contexts;
     }
 }
-
