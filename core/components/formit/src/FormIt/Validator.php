@@ -108,7 +108,7 @@ class Validator extends FormIt
         $validationFields = explode($validationSeparator, $validationFields);
         $fieldValidators = array();
         foreach ($validationFields as $idx => $v) {
-            $v = trim(ltrim($v),' '); /* allow multi-line definitions */
+            $v = trim($v); /* strip all whitespace, including newlines, to allow multi-line definitions */
             $key = explode(':',$v); /* explode into list separated by : */
             if (!empty($key[0])) {
                 $field = $key[0];
