@@ -5,6 +5,18 @@ Changelog for FormIt.
 - Add setting to post external without going external (formAction handling for Formalicious).
 - Set `allowFiles` and `attachFilesToEmail` defaults to false.
 - Add `formit.attachment.lifeline` system setting for tmp attachment cleanup.
+- Drop MODX 2 support: develop and 3.x are merged (#319).
+- Fix GROUP BY error with ONLY_FULL_GROUP_BY in manager grids (#294).
+- Scope the formit permission to its own policy template (#314).
+- Log custom validators that are skipped because they are not in `customValidators` (#313).
+- Trim all whitespace when splitting `&validate` fields (#312).
+- Skip empty `fiarFrom`, `fiarFromName` and `fiarSender` values in the Autoresponder hook (#311).
+- Skip reCAPTCHA v3 handling when hCaptcha is used (#309).
+- Update the view form window in the manager (#290).
+- Fix "Undefined array key hooks" in `hasHook()` without `&hooks` (#317).
+- Fix fatal error in the Redirect hook when the external `formAction` post fails.
+- Fix warning in the Redirect hook when `formAction` is not set.
+- Fix tmp attachments being removed directly when `formit.attachment.lifeline` is empty; default is now 86400.
 
 # FormIt 5.2.5
 
