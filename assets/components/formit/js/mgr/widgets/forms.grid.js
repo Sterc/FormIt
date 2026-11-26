@@ -354,8 +354,7 @@ FormIt.window.ViewForm = function(config) {
         height      : 500,
         width       : 600,
         title       : _('formit.form_view'),
-        labelAlign  : 'left',
-        labelWidth  : 150,
+        labelAlign  : 'top',
         cls         : 'x-window-formit',
         fields      : [{
             xtype       : 'statictextfield',
@@ -363,15 +362,40 @@ FormIt.window.ViewForm = function(config) {
             name        : 'form',
             anchor      : '100%'
         }, {
-            xtype       : 'statictextfield',
-            fieldLabel  : _('formit.label_form_ip'),
-            name        : 'ip',
-            anchor      : '100%'
-        }, {
-            xtype       : 'statictextfield',
-            fieldLabel  : _('formit.label_form_date'),
-            name        : 'date',
-            anchor      : '100%'
+            layout: 'column',
+            items: [{
+                columnWidth: .5,
+                layout: 'form',
+                items: [{
+                    xtype       : 'statictextfield',
+                    fieldLabel  : _('formit.label_form_ip'),
+                    name        : 'ip',
+                    anchor      : '100%',
+                    listeners   : {
+                        afterrender : el => {
+                            if (Ext.isEmpty(el.value)) {
+                                el.setValue(config.record?.ip);
+                            }
+                        }
+                    }
+                }]
+            }, {
+                columnWidth: .5,
+                layout: 'form',
+                items: [{
+                    xtype       : 'statictextfield',
+                    fieldLabel  : _('formit.label_form_date'),
+                    name        : 'date',
+                    anchor      : '100%',
+                    listeners   : {
+                        afterrender : el => {
+                            if (Ext.isEmpty(el.value)) {
+                                el.setValue(config.record?.date);
+                            }
+                        }
+                    }
+                }]
+            }]
         }, {
             html        : '<hr />'
         }, this.getValues(config.record.values)]
