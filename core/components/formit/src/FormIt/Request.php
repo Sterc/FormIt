@@ -141,8 +141,8 @@ class Request
 
         /* if not a form submission, store config for AJAX handling */
         if (!$this->hasSubmission()) {
-            $properties = $this->config;
-            $properties['pageId'] = $this->modx->resource ? $this->modx->resource->get('id') : null;
+            $properties = $this->getStorableAjaxConfig($this->config);
+            $properties['pageId'] = $this->modx->resource ? (int) $this->modx->resource->get('id') : null;
 
             $ajaxToken = bin2hex(random_bytes(16));
 
@@ -236,6 +236,20 @@ class Request
         }
 
         $this->formit->renderHooks->loadMultiple($this->config['renderHooks'], $fields, array(), $errors);
+    }
+
+    /**
+     * Keep only scalar values that can be stored in session and MODX file cache.
+     *
+     * @param array<string|int, mixed> $config
+     *
+     * @return array<string|int, mixed>
+     */
+    private function getStorableAjaxConfig(array $config): array
+    {
+        return array_filter($config, static function ($value) {
+            return $value === null || is_scalar($value);
+        });
     }
 
     /**
