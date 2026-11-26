@@ -28,7 +28,7 @@
  * @package formit
  */
 
-require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
+require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 class fiValidator extends Sterc\FormIt\Validator
 {

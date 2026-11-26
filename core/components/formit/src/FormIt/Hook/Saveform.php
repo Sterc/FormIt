@@ -2,6 +2,8 @@
 
 namespace Sterc\FormIt\Hook;
 
+use Sterc\FormIt\Model\FormItForm;
+
 class Saveform
 {
     /**
@@ -141,10 +143,10 @@ class Saveform
         // Create/get obj
         $newForm = null;
         if ($mode === 'update') {
-            $newForm = $this->modx->getObject('FormItForm', array('hash' => $formHashKey));
+            $newForm = $this->modx->getObject(FormItForm::class, ['hash' => $formHashKey]);
         }
         if ($newForm === null) {
-            $newForm = $this->modx->newObject('FormItForm');
+            $newForm = $this->modx->newObject(FormItForm::class);
         }
 
         // Array from which to populate form record
@@ -172,39 +174,43 @@ class Saveform
         // the form values, not the other stuff
         if ($mode === 'update' && $updateSavedForm === 'values') {
             $newFormArray = $newForm->toArray();
-            $newFormArray = array_merge($newFormArray, array(
+            $newFormArray = array_merge($newFormArray, [
                 'values' => $dataArray,
                 'encryption_type' => $encryptionType,
-            ));
+            ]);
         } else {
             // In all other cases, we overwrite the record completely!
             // In create mode we must save the hash. In update mode, the
             // formHashKey will be valid so we can also save it, again.
-            $newFormArray = array(
-                'form' => $formName,
-                'date' => time(),
-                'values' => $dataArray,
-                'ip' => $this->modx->getOption('REMOTE_ADDR', $_SERVER, ''),
-                'context_key' => $contextKey,
-                'encrypted' => $formEncrypt,
-                'encryption_type' => $encryptionType,
-                'hash' => $formHashKey,
-            );
+            $newFormArray = [
+                'form'              => $formName,
+                'date'              => time(),
+                'values'            => $dataArray,
+                'ip'                => $this->modx->getOption('REMOTE_ADDR', $_SERVER, ''),
+                'context_key'       => $contextKey,
+                'encrypted'         => $formEncrypt,
+                'encryption_type'   => $encryptionType,
+                'hash'              => $formHashKey,
+            ];
         }
         // Convert to object
         $newForm->fromArray($newFormArray);
+
         // Attempt to save
         if (!$newForm->save()) {
             $this->modx->log(\modX::LOG_LEVEL_ERROR, '[FormItSaveForm] An error occurred while trying to save the submitted form: ' . print_r($newForm->toArray(), true));
             return false;
         }
+
         $storeAttachments = $this->modx->getOption('storeAttachments', $this->config, false);
         if ($storeAttachments) {
             $newForm->storeAttachments($this->formit->config);
         }
+
         // Pass the hash and form data back to the user
         $this->hook->setValue('savedForm', $newForm->toArray());
         $this->hook->setValue($formHashKeyField, $newForm->get('hash'));
+
         return true;
     }
 }

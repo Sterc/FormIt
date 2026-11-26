@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__) . '/index.class.php';
+
 /**
  * Loads the home page.
  *
@@ -8,14 +9,16 @@ require_once dirname(__DIR__) . '/index.class.php';
  */
 class FormItMigrateManagerController extends FormItBaseManagerController
 {
-    public function process(array $scriptProperties = array())
+    public function process(array $scriptProperties = [])
     {
 
     }
+
     public function getPageTitle()
     {
         return $this->modx->lexicon('formit.migrate');
     }
+
     public function loadCustomCssJs()
     {
         $this->addJavascript($this->modx->formit->config['js_url'] . 'mgr/widgets/migrate.panel.js');
@@ -24,6 +27,6 @@ class FormItMigrateManagerController extends FormItBaseManagerController
 
     public function getTemplateFile()
     {
-        return $this->formit->config['templatesPath'].'migrate.tpl';
+        return $this->modx->formit->config['templates_path'] . 'migrate.tpl';
     }
 }

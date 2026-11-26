@@ -47,7 +47,7 @@ Ext.extend(FormIt.panel.Migrate,MODx.Panel,{
         MODx.Ajax.request({
             url: FormIt.config.connector_url
             ,params: {
-                action: 'mgr/forms/migrate'
+                action: 'Sterc\\FormIt\\Processors\\Mgr\\Forms\\Migrate'
             }
             ,listeners: {
                 'success':{fn:function(r) {

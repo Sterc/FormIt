@@ -2,6 +2,9 @@
 
 namespace Sterc\FormIt\Hook;
 
+use MODX\Revolution\Mail\modMail;
+use MODX\Revolution\Mail\modPHPMailer;
+
 class Email
 {
     /**
@@ -191,17 +194,17 @@ class Email
         $message = $this->hook->_process($message, $this->config);
 
         /* load mail service */
-        $this->modx->getService('mail', 'mail.modPHPMailer');
+        $mail = $this->modx->getService('mail', modPHPMailer::class);
 
         /* set HTML */
-        $this->modx->mail->setHTML($emailHtml);
+        $mail->setHTML($emailHtml);
 
         /* set email main properties */
-        $this->modx->mail->set(\modMail::MAIL_BODY, $emailHtml && $emailConvertNewlines ? nl2br($message) : $message);
-        $this->modx->mail->set(\modMail::MAIL_FROM, $emailFrom);
-        $this->modx->mail->set(\modMail::MAIL_FROM_NAME, $emailFromName);
-        $this->modx->mail->set(\modMail::MAIL_SENDER, $emailReturnPath);
-        $this->modx->mail->set(\modMail::MAIL_SUBJECT, $subject);
+        $mail->set(modMail::MAIL_BODY, $emailHtml && $emailConvertNewlines ? nl2br($message) : $message);
+        $mail->set(modMail::MAIL_FROM, $emailFrom);
+        $mail->set(modMail::MAIL_FROM_NAME, $emailFromName);
+        $mail->set(modMail::MAIL_SENDER, $emailReturnPath);
+        $mail->set(modMail::MAIL_SUBJECT, $subject);
 
         /* handle file fields */
         if ($this->modx->getOption('attachFilesToEmail', $this->config, true)) {
@@ -214,7 +217,7 @@ class Email
                                 if (empty($v['name'][$i])) {
                                     $v['name'][$i] = 'attachment' . $attachmentIndex;
                                 }
-                                $this->modx->mail->mailer->addAttachment(
+                                $mail->mailer->addAttachment(
                                     $v['tmp_name'][$i],
                                     $v['name'][$i],
                                     'base64',
@@ -228,7 +231,7 @@ class Email
                             if (empty($v['name'])) {
                                 $v['name'] = 'attachment' . $attachmentIndex;
                             }
-                            $this->modx->mail->mailer->addAttachment(
+                            $mail->mailer->addAttachment(
                                 $v['tmp_name'],
                                 $v['name'],
                                 'base64',
@@ -241,7 +244,7 @@ class Email
             }
         }
 
-        /* add to: with support for multiple addresses */
+        /* add to: with support for multiple addresses, fix with CC for RFC 5322 compliance */
         $emailTo = explode(',', $emailTo);
         $emailToName = explode(',', $emailToName);
         $numAddresses = count($emailTo);
@@ -252,7 +255,11 @@ class Email
             }
             $emailTo[$i] = $this->hook->_process($emailTo[$i], $fields);
             if (!empty($emailTo[$i])) {
-                $this->modx->mail->address('to', $emailTo[$i], $etn);
+                if ($i == 0) {
+                    $mail->address('to', $emailTo[$i], $etn);                    
+                } else {
+                    $mail->address('cc', $emailTo[$i], $etn);                
+                }
             }
         }
 
@@ -265,7 +272,7 @@ class Email
         $emailReplyToName = $this->modx->getOption('emailReplyToName', $this->formit->config, $emailFromName);
         $emailReplyToName = $this->hook->_process($emailReplyToName, $fields);
         if (!empty($emailReplyTo)) {
-            $this->modx->mail->address('reply-to', $emailReplyTo, $emailReplyToName);
+            $mail->address('reply-to', $emailReplyTo, $emailReplyToName);
         }
 
         /* cc */
@@ -282,7 +289,7 @@ class Email
                 }
                 $emailCC[$i] = $this->hook->_process($emailCC[$i], $fields);
                 if (!empty($emailCC[$i])) {
-                    $this->modx->mail->address('cc', $emailCC[$i], $etn);
+                    $mail->address('cc', $emailCC[$i], $etn);
                 }
             }
         }
@@ -301,20 +308,20 @@ class Email
                 }
                 $emailBCC[$i] = $this->hook->_process($emailBCC[$i], $fields);
                 if (!empty($emailBCC[$i])) {
-                    $this->modx->mail->address('bcc', $emailBCC[$i], $etn);
+                    $mail->address('bcc', $emailBCC[$i], $etn);
                 }
             }
         }
 
         /* send email */
         if (!$this->formit->inTestMode) {
-            $sent = $this->modx->mail->send();
+            $sent = $mail->send();
         } else {
             $sent = true;
         }
-        $this->modx->mail->reset(array(
-            \modMail::MAIL_CHARSET => $this->modx->getOption('mail_charset', null, 'UTF-8'),
-            \modMail::MAIL_ENCODING => $this->modx->getOption('mail_encoding', null, '8bit'),
+        $mail->reset(array(
+            modMail::MAIL_CHARSET => $this->modx->getOption('mail_charset', null, 'UTF-8'),
+            modMail::MAIL_ENCODING => $this->modx->getOption('mail_encoding', null, '8bit'),
         ));
 
         if (!$sent) {

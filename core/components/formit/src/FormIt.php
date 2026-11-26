@@ -5,6 +5,8 @@ namespace Sterc;
 use Sterc\FormIt\Hook;
 use Sterc\FormIt\Module\Module;
 use Sterc\FormIt\Request;
+use MODX\Revolution\modChunk;
+use Sterc\FormIt\Model\FormItForm;
 
 /**
  * FormIt
@@ -14,6 +16,8 @@ use Sterc\FormIt\Request;
 
 class FormIt
 {
+    const DEFAULT_RECAPTCHA_ACTION = 'submit';
+
     /**
      * @access public.
      * @var \modX.
@@ -98,7 +102,7 @@ class FormIt
             'lexicons'              => ['formit:default'],
             'base_path'             => $corePath,
             'core_path'             => $corePath,
-            'model_path'            => $corePath . 'model/',
+            'model_path'            => $corePath . 'src/FormIt/Model/',
             'processors_path'       => $corePath . 'processors/',
             'elements_path'         => $corePath . 'elements/',
             'chunks_path'           => $corePath . 'elements/chunks/',
@@ -111,7 +115,7 @@ class FormIt
             'css_url'               => $assetsUrl . 'css/',
             'assets_url'            => $assetsUrl,
             'connector_url'         => $assetsUrl . 'connector.php',
-            'version'               => '4.2.1',
+            'version'               => '5.0.0',
             'placeholderPrefix'     => 'fi.',
             'debug'                 => (bool) $this->modx->getOption('formit.debug', null, false),
             'use_multibyte'         => (bool) $this->modx->getOption('use_multibyte', null, false),
@@ -123,8 +127,6 @@ class FormIt
                 'encryptions'           => $this->modx->hasPermission('formit_encryptions')
             ]
         ], $config);
-
-        $this->modx->addPackage('formit', $this->config['model_path']);
 
         if (is_array($this->config['lexicons'])) {
             foreach ($this->config['lexicons'] as $lexicon) {
@@ -214,7 +216,7 @@ class FormIt
         $classPath = $this->modx->getOption('request_class_path', $this->config, '');
 
         if (empty($classPath)) {
-            $classPath = $this->config['model_path'].'formit/';
+            $classPath = $this->config['core_path'] . 'model/formit/';
         }
 
         if ($this->modx->loadClass($className, $classPath, true, true)) {
@@ -236,11 +238,7 @@ class FormIt
     public function loadModule($className, $serviceName, array $config = array())
     {
         if (empty($this->$serviceName)) {
-            $classPath = $this->modx->getOption(
-                'formit.modules_path',
-                null,
-                $this->config['model_path'].'formit/module/'
-            );
+            $classPath = $this->modx->getOption('formit.modules_path', null, $this->config['core_path'] . '/model/formit/module/');
 
             if ($this->modx->loadClass($className, $classPath, true, true)) {
                 $this->$serviceName = new $className($this, $config);
@@ -266,7 +264,7 @@ class FormIt
      */
     public function loadHooks($type = 'post', $config = [])
     {
-        if (!$this->modx->loadClass('formit.fiHooks', $this->config['model_path'], true, true)) {
+        if (!$this->modx->loadClass('formit.fiHooks', $this->config['core_path'] . 'model/', true, true)) {
             $this->modx->log(\modX::LOG_LEVEL_ERROR, '[FormIt] Could not load Hooks class.');
 
             return false;
@@ -279,42 +277,38 @@ class FormIt
     }
 
     /**
-     * Process the form and return response array
-     * Does not execute redirect, but add redirect_url to response
+     * Process the form and return response array.
+     * Does not execute redirect, but adds redirect_url to response.
+     *
+     * @deprecated Use action.php AJAX endpoint instead.
      *
      * @return array
      */
     public function processForm()
     {
+        $this->modx->log(\modX::LOG_LEVEL_WARN, '[FormIt] processForm() is deprecated.');
+
         $this->returnOutput = true;
         $this->loadRequest();
         $this->request->prepare();
         $this->request->handle();
 
-        // By default form is successfull
         $response = [
             'success' => true,
-            'message' => $this->request->config['successMessage']
+            'message' => $this->request->config['successMessage'] ?? ''
         ];
 
-        // Check for errors
         if ($this->hasErrors()) {
-            $response['success'] = false;
+            $response['success']     = false;
             $response['error_count'] = count($this->errors);
-            $errorMessage = $this->modx->getPlaceholder(
-                $this->modx->getOption('placeholderPrefix', $this->request->config, null).'validation_error_message'
-            );
-            $response['message'] = $errorMessage;
-            $response['errors'] = $this->getErrors();
+            $response['message']     = $this->modx->getPlaceholder($this->modx->getOption('placeholderPrefix', $this->request->config, null) . 'validation_error_message');
+            $response['errors']      = $this->getErrors();
         }
 
-        // Add the form fields to output
         $response['fields'] = $this->request->dictionary->fields;
 
-        // Check for redirect
         if ($this->postHooks && $this->hasHook('redirect')) {
-            $url = $this->postHooks->getRedirectUrl();
-            $response['redirect_url'] = $url;
+            $response['redirect_url'] = $this->postHooks->getRedirectUrl();
         }
 
         return $response;
@@ -341,9 +335,11 @@ class FormIt
      * @param array $properties The properties for the Chunk
      * @return string The processed content of the Chunk
      */
-    public function getChunk($name, $properties = array())
+    public function getChunk($name, $properties = [])
     {
-        if (class_exists('ModxPro\PdoTools\Fetch') && $pdo = $this->modx->getService('pdoTools')) {
+        if ($this->modx->services->has('pdoTools')) {
+            $pdo = $this->modx->services->get('pdoTools');
+
             return $pdo->getChunk($name, $properties);
         }
 
@@ -351,11 +347,11 @@ class FormIt
 
         if (substr($name, 0, 6) === '@CODE:') {
             $content = substr($name, 6);
-            $chunk = $this->modx->newObject('modChunk');
+            $chunk = $this->modx->newObject(modChunk::class);
             $chunk->setContent($content);
         } elseif (!isset($this->chunks[$name])) {
             if (!$this->config['debug']) {
-                $chunk = $this->modx->getObject('modChunk', array('name' => $name), true);
+                $chunk = $this->modx->getObject(modChunk::class, ['name' => $name], true);
             }
 
             if (empty($chunk)) {
@@ -368,7 +364,7 @@ class FormIt
             $this->chunks[$name] = $chunk->getContent();
         } else {
             $content = $this->chunks[$name];
-            $chunk = $this->modx->newObject('modChunk');
+            $chunk   = $this->modx->newObject(modChunk::class);
             $chunk->setContent($content);
         }
 
@@ -399,7 +395,7 @@ class FormIt
         if (file_exists($file)) {
             $content = file_get_contents($file);
             /** @var \modChunk $chunk */
-            $chunk = $this->modx->newObject('modChunk');
+            $chunk = $this->modx->newObject(modChunk::class);
             $chunk->set('name', $name);
             $chunk->setContent($content);
         }
@@ -456,7 +452,7 @@ class FormIt
         $mtime = microtime();
         $mtime = explode(" ", $mtime);
         $mtime = $mtime[1] + $mtime[0];
-        $tend = $mtime;
+        $tend  = $mtime;
 
         $totalTime = ($tend - $this->debugTimer);
         $totalTime = sprintf("%2.4f s", $totalTime);
@@ -481,7 +477,8 @@ class FormIt
     public function encryptionMigrationStatus()
     {
         $migrationStatus = true;
-        if ($this->modx->getCount('FormItForm', array('encrypted' => 1, 'encryption_type' => 1))) {
+
+        if ($this->modx->getCount(FormItForm::class, ['encrypted' => 1, 'encryption_type' => 1])) {
             $migrationStatus = false;
         }
 
@@ -498,6 +495,7 @@ class FormIt
     public function hasHook($hook)
     {
         $hook = $this->getHookName($hook);
+
         return !!preg_match('#\\b' . preg_quote($hook, '#') . '\\b#i', $this->config['hooks']);
     }
 
