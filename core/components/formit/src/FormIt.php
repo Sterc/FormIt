@@ -496,7 +496,7 @@ class FormIt
     {
         $hook = $this->getHookName($hook);
 
-        return !!preg_match('#\\b' . preg_quote($hook, '#') . '\\b#i', $this->config['hooks']);
+        return !!preg_match('#\\b' . preg_quote($hook, '#') . '\\b#i', $this->config['hooks'] ?? '');
     }
 
     /**

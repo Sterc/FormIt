@@ -3,6 +3,7 @@
 namespace Sterc\FormIt\Hook;
 
 use MODX\Revolution\modResource;
+use MODX\Revolution\modX;
 
 class Redirect
 {
@@ -60,7 +61,7 @@ class Redirect
         }
 
         /** Allow external handling of the post. */
-        if ($this->formit->config['formAction']) {
+        if (!empty($this->formit->config['formAction'])) {
             $this->externalPost($fields);
         }
 
@@ -118,7 +119,7 @@ class Redirect
         $result = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            $this->modx->log(MODx::LOG_LEVEL_ERROR, '[FormIt] failed call to external action:' . curl_error($ch));
+            $this->modx->log(modX::LOG_LEVEL_ERROR, '[FormIt] failed call to external action:' . curl_error($ch));
         }
 
         curl_close($ch);    

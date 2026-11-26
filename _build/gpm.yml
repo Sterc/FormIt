@@ -38,6 +38,7 @@ systemSettings:
     area: formit
   - key: attachment.lifeline
     area: formit
+    value: 86400
   - key: cleanform.days
     area: formit
     value: 30

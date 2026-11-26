@@ -12,6 +12,8 @@ $_lang['formit.desc']                                           = 'View all subm
 $_lang['area_formit']                                           = 'FormIt';
 $_lang['area_formit_recaptcha']                                 = 'FormIt reCAPTCHA';
 $_lang['setting_formit.upload_blocked_extensions']              = 'Blocked upload file extensions';
+$_lang['setting_formit.attachment.lifeline']                    = 'Temporary attachment lifetime';
+$_lang['setting_formit.attachment.lifeline_desc']               = 'Number of seconds temporary uploaded files are kept before FormIt removes them. Default: 86400 (1 day).';
 $_lang['setting_formit.upload_blocked_extensions_desc']         = 'Comma-separated list of file extensions that FormIt will always block for uploads, even if MODX upload settings allow them.';
 
 $_lang['formit.form']                                           = 'Form';
