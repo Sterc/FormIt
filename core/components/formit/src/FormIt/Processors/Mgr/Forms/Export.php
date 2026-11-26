@@ -209,7 +209,7 @@ class Export extends Processor
             $defaultColumns = array_map('strtolower', explode(',', $this->getProperty('columns')));
 
             if ($columns) {
-                fputcsv($fopen, $columns, $this->getProperty('delimiter'));
+                fputcsv($fopen, $columns, $this->getProperty('delimiter', $this->modx->getOption('formit.export_csv_delimiter')));
 
                 foreach ($data as $row) {
                     $value  = [];
@@ -231,7 +231,7 @@ class Export extends Processor
                         }
                     }
 
-                    fputcsv($fopen, $value, $this->getProperty('delimiter'));
+                    fputcsv($fopen, $value, $this->getProperty('delimiter', $this->modx->getOption('formit.export_csv_delimiter')));
                 }
             }
 
