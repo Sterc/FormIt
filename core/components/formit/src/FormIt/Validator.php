@@ -252,8 +252,10 @@ class Validator extends FormIt
 
         /** @var array $invNames An array of invalid hook names to skip */
         $invNames = array('validate','validateFields','addError','__construct');
-        $customValidators = !empty($this->config['customValidators']) ? $this->config['customValidators'] : '';
-        $customValidators = explode(',',$customValidators);
+        $customValidators = !empty($this->config['customValidators']) ? $this->config['customValidators'] : array();
+        if (!is_array($customValidators)) {
+            $customValidators = explode(',',$customValidators);
+        }
         if (method_exists($this,$type) && !in_array($type,$invNames)) {
             /* built-in validator */
             $validated = $this->$type($key,$value,$param);
@@ -280,7 +282,10 @@ class Validator extends FormIt
                 $validated = true;
             }
         } else {
-            $this->modx->log(\modX::LOG_LEVEL_INFO,'[FormIt] Validator "'.$type.'" for field "'.$key.'" was not specified in the customValidators property.');
+            /* not allowlisted: skip the validator and treat the field as valid, but warn loudly
+               since LOG_LEVEL_INFO is below MODX's default log_level and would otherwise stay
+               invisible, making the missing error message look like a bug in FormIt itself */
+            $this->modx->log(\modX::LOG_LEVEL_WARN,'[FormIt] Validator "'.$type.'" for field "'.$key.'" was skipped because it is not listed in the customValidators property. Add it there (e.g. &customValidators=`'.$type.'`) if it should run.');
             $validated = true;
         }
 
